@@ -291,6 +291,23 @@ class CreateQtnEvents implements SelectionListener, KeyListener, ModifyListener
 					
 				}
 				
+				// Should load up the 'prevQtnList' in real time ;)
+				// UNION returns no duplicates ;)
+				query = "SELECT question_name, question_type, possible_answers FROM Questions UNION SELECT question_name, question_type, possible_answers FROM Questions;";
+				
+				// Perform Query on start up.
+				loadQuestions(query);
+				
+				if(CreateQ.arrayPrevQtnNames.size() > 0)
+				{
+					// Enable the button if there are questions stored in the database.
+					CreateQ.prevQtnAddBtn.setEnabled(true);
+				}else
+				{
+					// Do nothing.
+				}
+				
+				
 				
 			}
 		
@@ -809,6 +826,11 @@ class CreateQtnEvents implements SelectionListener, KeyListener, ModifyListener
 			// Load the Questions from the database onto the 'prevQtnList.
 			CreateQ.prevQtnList.setItems(prevQtns);
 			
+			/// Set it to automatically select the first question - I will get back to this.
+			CreateQ.prevQtnList.select(0);	
+			
+			
+			
 			
 		}catch(SQLException sqle)
 		{
@@ -826,38 +848,50 @@ class CreateQtnEvents implements SelectionListener, KeyListener, ModifyListener
 					
 		// THE FINALE LIES HERE! - F****, so long.
 		
-		int selectedPrevQtnIndex = CreateQ.prevQtnList.getSelectionIndex();
+		if(CreateQ.prevQtnList.getItemCount() > 0)
+		{
+			int selectedPrevQtnIndex = CreateQ.prevQtnList.getSelectionIndex();
 			
-		// I would need to think long and hard for this one section as I don't have a database to test it on yet.
+			// I would need to think long and hard for this one section as I don't have a database to test it on yet.
+			
+			// Get the question name selected on 'prevQtnList'.
+			String prevQtnName = CreateQ.arrayPrevQtnNames.get(selectedPrevQtnIndex);
+			// Adds the question name to the main arrays.
+			arrayQuestionNames.add(prevQtnName);
+			// Also add the Question to the List  'qtnList' - Currently added questions.
+			CreateQ.qtnList.add(prevQtnName);	
+			
+			// Get the question type of the selected question from 'prevQtnList.
+			String prevQtnType = CreateQ.arrayPrevQtnType.get(selectedPrevQtnIndex);
+			// Adds the question type to the main arrays
+			arrayQuestionType.add(prevQtnType);
+			
+			// Get the String of answers for the selected question from 'prevQtnList'
+			String prevQtnAnswers = CreateQ.arrayPrevAnswers.get(selectedPrevQtnIndex);
+			// Adds the String of answers to the main arrays.
+			arrayAnswers.add(prevQtnAnswers);
+			
+			// Enable the 'editQtnBtn'.
+			CreateQ.editQtnBtn.setEnabled(true);
+			// Enable the 'deleteQtnBtn'.
+			CreateQ.deleteQtnBtn.setEnabled(true);
+			// Enable the 'exportBtn'
+			CreateQ.exportBtn.setEnabled(true);
 		
-		// Get the question name selected on 'prevQtnList'.
-		String prevQtnName = CreateQ.arrayPrevQtnNames.get(selectedPrevQtnIndex);
-		// Adds the question name to the main arrays.
-		arrayQuestionNames.add(prevQtnName);
-		// Also add the Question to the List  'qtnList' - Currently added questions.
-		CreateQ.qtnList.add(prevQtnName);	
-		
-		// Get the question type of the selected question from 'prevQtnList.
-		String prevQtnType = CreateQ.arrayPrevQtnType.get(selectedPrevQtnIndex);
-		// Adds the question type to the main arrays
-		arrayQuestionType.add(prevQtnType);
-		
-		// Get the String of answers for the selected question from 'prevQtnList'
-		String prevQtnAnswers = CreateQ.arrayPrevAnswers.get(selectedPrevQtnIndex);
-		// Adds the String of answers to the main arrays.
-		arrayAnswers.add(prevQtnAnswers);
-		
-		// Enable the 'editQtnBtn'.
-		CreateQ.editQtnBtn.setEnabled(true);
-		// Enable the 'deleteQtnBtn'.
-		CreateQ.deleteQtnBtn.setEnabled(true);
-		// Enable the 'exportBtn'
-		CreateQ.exportBtn.setEnabled(true);
-	
+			/// Set it to automatically select the recently added question in the list. - I will get back to this.
+			CreateQ.qtnList.select(selectedPrevQtnIndex);	
+				
+		}else
+		{
+			// Debug purposes.
+			System.out.println("There are no questions currently stored in the database.");
+		}
 		
 		
 		
 		
+		
+		/*
 		// Debug purposes.
 		System.out.println("-------------------- Questions in the Database Array --------------------");
 		
@@ -874,6 +908,7 @@ class CreateQtnEvents implements SelectionListener, KeyListener, ModifyListener
 			System.out.println(arrayQuestionNames.get(x) + " : " + arrayQuestionType.get(x) + " : " + arrayAnswers.get(x));
 		}
 		
+		*/
 	}
 	
 }

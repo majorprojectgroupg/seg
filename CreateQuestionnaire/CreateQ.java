@@ -319,9 +319,9 @@ public class CreateQ{
 		// Load all the questions from the database into the 'prevQtnList'. - IT WORKS GRACEFULLY! :)
 		
 		// Initialises the ArrayLists.
-		arrayPrevQtnNames = new ArrayList<String>();
-		arrayPrevQtnType = new ArrayList<String>();
-		arrayPrevAnswers = new ArrayList<String>();
+		//arrayPrevQtnNames = new ArrayList<String>();
+		//arrayPrevQtnType = new ArrayList<String>();
+		//arrayPrevAnswers = new ArrayList<String>();
 		
 		String query = "";
 		// UNION returns no duplicates ;)
@@ -329,6 +329,7 @@ public class CreateQ{
 		
 		// Perform Query on start up.
 		CreateQtnEvents.loadQuestions(query);
+		
 		
 		// End of 'prevQtnList. - Loading questions from the database into the 'prevQtnList.
 		
@@ -343,10 +344,21 @@ public class CreateQ{
 		prevQtnAddBtn = new Button(rightTopPanel, SWT.PUSH);
 		prevQtnAddBtn.addSelectionListener(new CreateQtnEvents());
 		prevQtnAddBtn.setText("Add to List");
+		// Disable the button on startup.
+		prevQtnAddBtn.setEnabled(false);
 		GridData gdRightTop7 = new GridData();
 		gdRightTop7.horizontalSpan = 2;
 		
 		prevQtnAddBtn.setLayoutData(gdRightTop7);
+		
+		if(arrayPrevQtnNames.size() > 0)
+		{
+			// Enable the button if there are questions stored in the database.
+			prevQtnAddBtn.setEnabled(true);
+		}else
+		{
+			// Do nothing.
+		}
 		
 		// -- rightTopPanel (end) -- //
 		
