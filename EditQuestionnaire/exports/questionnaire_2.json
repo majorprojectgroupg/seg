@@ -1,0 +1,6 @@
+{
+"questionnaire_2" : [
+{ "question":"What kind of food do you prefer?", "type":"MultiChoice", "answers":"Organic@Fast food@Raw"},
+{ "question":"What hospital were you born in?", "type":"SingleChoice", "answers":"Homerton@UCH@The Barts"}
+]
+}
