@@ -188,154 +188,169 @@ class EditQtnEvents implements SelectionListener, KeyListener, ModifyListener
 			// This entire section works as expected :D
 			if(e.getSource() == EditQ.updateBtn)
 			{
-				if(EditQ.questionnaireName.isEmpty())
+				// If a title for the questionnaire has been specified, do the following...
+				if(EditQ.titleInput.getCharCount() > 1)
 				{
-					// Do nothing.
-					System.out.println("No questionnaire has been selected");
-				}else
-				{
-					
-					// For debug purposes.
-					String exportString = "";
-					
-					// Export.
-					String jsonString = "";
-															
-					int noOfQtns = arrayQuestionNames.size();																				
-					String query = "";
-					
-					
-					try
+					// If a questionnaire has not been selected from the FileDialog...
+					if(EditQ.questionnaireName.isEmpty())
 					{
-						// This is needed to set up the SQLite Driver, and also
-						// WE MUST ALSO PROVIDE THE 'sqlite-jdbc.jar' file before we submit it.
-						Class.forName("org.sqlite.JDBC");
-						// Connect to the Database.
-						connectToDB = DriverManager.getConnection("jdbc:sqlite:./database.sqlite");
-						// Queries will be executed from this instance.
-						statement = connectToDB.createStatement();
+						// Do nothing.
+						System.out.println("No questionnaire has been selected");
+					}else
+					{
 						
-						// For some reason 'EditQ.questionnaireID' is equal to where it should not be 0 :/
+						// For debug purposes.
+						String exportString = "";
 						
-						// Delete the existing questions from the 'Questions' table.
-						query = "DELETE FROM Questions WHERE question_id=" + EditQ.questionnaireID + ";";
+						// Export.
+						String jsonString = "";
+																
+						int noOfQtns = arrayQuestionNames.size();																				
+						String query = "";
 						
-						// Debug purposes.
-						// For some reason 'EditQ.questionnaireID' is equal to where it should not be 0  and EditQ.questionnaireName is null too.
-						// Okay, it is sorted now. For some reason, it doesn't initialise in time if I declare the variables in this class so
-						// I declared it in 'EditQ.java' instead.
-						System.out.println("QuestionnaireID from 'updateBtn': " + EditQ.questionnaireID);
-						System.out.println("QuestionnaireName from 'updateBtn': " + EditQ.questionnaireName);
 						
-						statement.executeUpdate(query);
-						
-						// Modifying the JSON Export...
-						
-						jsonString = "{\n" +
-															"\"questionnaire_" + EditQ.questionnaireID + "\" : [" + "\n" ;
-						
+						try
+						{
+							// This is needed to set up the SQLite Driver, and also
+							// WE MUST ALSO PROVIDE THE 'sqlite-jdbc.jar' file before we submit it.
+							Class.forName("org.sqlite.JDBC");
+							// Connect to the Database.
+							connectToDB = DriverManager.getConnection("jdbc:sqlite:./database.sqlite");
+							// Queries will be executed from this instance.
+							statement = connectToDB.createStatement();
+							
+							// For some reason 'EditQ.questionnaireID' is equal to where it should not be 0 :/
+							
+							// Delete the existing questions from the 'Questions' table.
+							query = "DELETE FROM Questions WHERE question_id=" + EditQ.questionnaireID + ";";
+							
+							// Debug purposes.
+							// For some reason 'EditQ.questionnaireID' is equal to where it should not be 0  and EditQ.questionnaireName is null too.
+							// Okay, it is sorted now. For some reason, it doesn't initialise in time if I declare the variables in this class so
+							// I declared it in 'EditQ.java' instead.
+							System.out.println("QuestionnaireID from 'updateBtn': " + EditQ.questionnaireID);
+							System.out.println("QuestionnaireName from 'updateBtn': " + EditQ.questionnaireName);
+							
+							statement.executeUpdate(query);
+							
+							// Modifying the JSON Export...
+							
+							jsonString = "{\n" +
+																"\"questionnaire_" + EditQ.questionnaireID + "\" : [" + "\n" ;
+							
+							
+							for(int x = 0;x<noOfQtns;x++)
+							{
+								// Insert the question_name (and its other values) into the 'Questions' table.
+								query = "INSERT INTO Questions(question_id, question_name, question_type, possible_answers)" +
+												"VALUES(" + EditQ.questionnaireID +  ", '" + arrayQuestionNames.get(x) + "', '" + arrayQuestionType.get(x) + "',\"" + arrayAnswers.get(x) + "\");";
+								// This is working fine.
+								statement.executeUpdate(query);
+								
+							}
+							
+							// I NEED TO TEST THIS PART OUT THOROUGHLY.
+							// Updates the 'Questionnaires' table with the questionnaire title ;) - Works hehe :)
+							query = "UPDATE Questionnaires SET questionnaire_name='" + EditQ.titleInput.getText() + "' WHERE questionnaire_name='" + EditQ.questionnaireTitle + "' AND question_id=" + EditQ.questionnaireID + ";";
+							statement.executeQuery(query);
+							
+							statement.close();	 // Works.
+							connectToDB.close(); // Works.
+							
+						}catch(ClassNotFoundException cnfe)
+						{
+							cnfe.printStackTrace();
+							
+						}catch(SQLException sqle)
+						{
+							sqle.printStackTrace();
+						}
 						
 						for(int x = 0;x<noOfQtns;x++)
 						{
-							// Insert the question_name (and its other values) into the 'Questions' table.
-							query = "INSERT INTO Questions(question_id, question_name, question_type, possible_answers)" +
-											"VALUES(" + EditQ.questionnaireID +  ", '" + arrayQuestionNames.get(x) + "', '" + arrayQuestionType.get(x) + "',\"" + arrayAnswers.get(x) + "\");";
-							// This is working fine.
-							statement.executeUpdate(query);
+							// Debug purposes.
+							exportString = exportString + (arrayQuestionNames.get(x) + "+" + arrayQuestionType.get(x) + "+" + arrayAnswers.get(x) + "and the length of answers is: " + arrayAnswers.get(x).length() + "\n");
+							
+							// Builds the JSON output.
+							jsonString = jsonString + "{ \"question\":\"" + arrayQuestionNames.get(x) + "\", \"type\":\"" + arrayQuestionType.get(x) + "\", \"answers\":\"" + arrayAnswers.get(x) + "\"},\n";		
+							
+						}
+						// Drops the trailing comma, and other crap: "},\n - that is 3 letters in length
+						jsonString = jsonString.substring(0, (jsonString.length()-3));
+						// Seals up the overall JSON object with: '}]}'
+						jsonString = jsonString + "}\n]\n}";
+						// I could have done this in the loop but, it could be exhaustive for the computer
+						// as checking whether we have reached the last question in a if statement might slow things down 
+			
+						// Debug purposes.
+						System.out.println(exportString);
+						System.out.println("The Questionnaire has been exported:\n" + jsonString);
+						
+						// So far so good - I NEED TO MAKE IT SO THAT IT UPDATES THE JSON FILE TOO ! ;D
+						
+						// BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(new File("./exports/questionnaire.json")));
+						// I will later implement this section so it can detect what OS the application is being ran on. 		
+						try
+						{
+							
+							// Overwrites the existing JSON File, assigning a value to uniquely identify the file ;)
+							BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(new File("./exports/questionnaire_" + EditQ.questionnaireID +".json")));
+							// Write to the file.
+							bufferedWriter.write(jsonString); 
+							bufferedWriter.close();	// Closes the stream.
+							
+						}catch(NullPointerException ne)
+						{
+								
+						}catch(IOException ioe)
+						{
 							
 						}
 						
-						statement.close();	 // Works.
-						connectToDB.close(); // Works.
+						// Should load up the 'prevQtnList' in real time ;)
+						// UNION returns no duplicates ;)
+						query = "SELECT question_name, question_type, possible_answers FROM Questions UNION SELECT question_name, question_type, possible_answers FROM Questions;";
 						
-					}catch(ClassNotFoundException cnfe)
-					{
-						cnfe.printStackTrace();
+						// Perform Query on start up.
+						loadQuestions(query);
 						
-					}catch(SQLException sqle)
-					{
-						sqle.printStackTrace();
+						if(EditQ.arrayPrevQtnNames.size() > 0)
+						{
+							// Enable the button if there are questions stored in the database.
+							EditQ.prevQtnAddBtn.setEnabled(true);
+						}else
+						{
+							// Do nothing.
+						}
+						
+						// -- Test this section thoroughly (when time allows me to) -- //
+						
+						// Disable the update button.
+						EditQ.updateBtn.setEnabled(false);
+						// Disable the 'editQtnBtn'
+						EditQ.editQtnBtn.setEnabled(false);
+						// Disable the 'deleteQtnBtn'
+						EditQ.deleteQtnBtn.setEnabled(false);
+						
+						
+						// Empty the Arrays for that correspond to 'qtnList'.
+						arrayQuestionNames = new ArrayList<String>();
+						arrayQuestionType = new ArrayList<String>();
+						arrayAnswers = new ArrayList<String>();
+						
+						// Clear the 'qtnList'.
+						EditQ.qtnList.removeAll();
+						// Clear the 'titleInput' field
+						EditQ.titleInput.setText("");
+						
+						// -- End of test -- //
 					}
 					
-					for(int x = 0;x<noOfQtns;x++)
-					{
-						// Debug purposes.
-						exportString = exportString + (arrayQuestionNames.get(x) + "+" + arrayQuestionType.get(x) + "+" + arrayAnswers.get(x) + "and the length of answers is: " + arrayAnswers.get(x).length() + "\n");
-						
-						// Builds the JSON output.
-						jsonString = jsonString + "{ \"question\":\"" + arrayQuestionNames.get(x) + "\", \"type\":\"" + arrayQuestionType.get(x) + "\", \"answers\":\"" + arrayAnswers.get(x) + "\"},\n";		
-						
-					}
-					// Drops the trailing comma, and other crap: "},\n - that is 3 letters in length
-					jsonString = jsonString.substring(0, (jsonString.length()-3));
-					// Seals up the overall JSON object with: '}]}'
-					jsonString = jsonString + "}\n]\n}";
-					// I could have done this in the loop but, it could be exhaustive for the computer
-					// as checking whether we have reached the last question in a if statement might slow things down 
-		
+				}else
+				{
 					// Debug purposes.
-					System.out.println(exportString);
-					System.out.println("The Questionnaire has been exported:\n" + jsonString);
-					
-					// So far so good - I NEED TO MAKE IT SO THAT IT UPDATES THE JSON FILE TOO ! ;D
-					
-					// BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(new File("./exports/questionnaire.json")));
-					// I will later implement this section so it can detect what OS the application is being ran on. 		
-					try
-					{
-						
-						// Overwrites the existing JSON File, assigning a value to uniquely identify the file ;)
-						BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(new File("./exports/questionnaire_" + EditQ.questionnaireID +".json")));
-						// Write to the file.
-						bufferedWriter.write(jsonString); 
-						bufferedWriter.close();	// Closes the stream.
-						
-					}catch(NullPointerException ne)
-					{
-							
-					}catch(IOException ioe)
-					{
-						
-					}
-					
-					// Should load up the 'prevQtnList' in real time ;)
-					// UNION returns no duplicates ;)
-					query = "SELECT question_name, question_type, possible_answers FROM Questions UNION SELECT question_name, question_type, possible_answers FROM Questions;";
-					
-					// Perform Query on start up.
-					loadQuestions(query);
-					
-					if(EditQ.arrayPrevQtnNames.size() > 0)
-					{
-						// Enable the button if there are questions stored in the database.
-						EditQ.prevQtnAddBtn.setEnabled(true);
-					}else
-					{
-						// Do nothing.
-					}
-					
-					// -- Test this section thoroughly (when time allows me to) -- //
-					
-					// Disable the update button.
-					EditQ.updateBtn.setEnabled(false);
-					// Disable the 'editQtnBtn'
-					EditQ.editQtnBtn.setEnabled(false);
-					// Disable the 'deleteQtnBtn'
-					EditQ.deleteQtnBtn.setEnabled(false);
-					
-					
-					// Empty the Arrays for that correspond to 'qtnList'.
-					arrayQuestionNames = new ArrayList<String>();
-					arrayQuestionType = new ArrayList<String>();
-					arrayAnswers = new ArrayList<String>();
-					
-					// Clear the 'qtnList'.
-					EditQ.qtnList.removeAll();
-					
-					// -- End of test -- //
+					System.out.println("Please specify a title for the questionnaire");
 				}
-				
-				
 				
 			}
 		
@@ -597,6 +612,16 @@ class EditQtnEvents implements SelectionListener, KeyListener, ModifyListener
 								arrayAnswers.add(rs.getString("possible_answers"));
 							}
 							
+							// Grab the Questionnaire Title.
+							query = "SELECT questionnaire_name FROM Questionnaires WHERE question_id=" + EditQ.questionnaireID + ";";
+							rs = statement.executeQuery(query);
+							
+							while(rs.next())
+							{
+								// Store the questionnaire title in a String.
+								EditQ.questionnaireTitle = rs.getString("questionnaire_name");
+							}
+							
 							// Works aha.
 							
 							String Qtns[] = {};
@@ -615,7 +640,9 @@ class EditQtnEvents implements SelectionListener, KeyListener, ModifyListener
 							
 							// Enable 'updateBtn'
 							EditQ.updateBtn.setEnabled(true);
-								
+							
+							// Set the 'titleInput' to the title of the questionnaire selected from the FileDialog. 
+							EditQ.titleInput.setText(EditQ.questionnaireTitle);	
 							
 						}catch(SQLException sqle)
 						{

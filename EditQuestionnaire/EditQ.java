@@ -38,8 +38,8 @@ public class EditQ{
 	public static Button prevQtnAddBtn, editQtnBtn, applyQtnBtn, deleteQtnBtn, updateBtn;
 	public static Label prevQtnTitleLbl, searchLbl, prevQuestionsLbl, prevAddQtnLbl;
 	
-	public static Label patientIdLbl, qtnLbl, qtnTypeLbl, answerLbl, answerListLbl, addQtnToListLbl, qtnListLbl, exportLbl;
-	public static Text patientIdInput, qtnInput, answerInput;
+	public static Label titleLabel, qtnLbl, qtnTypeLbl, answerLbl, answerListLbl, addQtnToListLbl, qtnListLbl, exportLbl;
+	public static Text titleInput, qtnInput, answerInput;
 	public static List answerList, prevQtnList, qtnList;
 	
 	public Connection connectToDB;
@@ -53,7 +53,7 @@ public class EditQ{
 	public static MenuItem fileMenuHeader, openMenuItem, exitMenuItem;
 	
 	public static FileDialog loadQtnDialog;
-	public static String questionnaireName;
+	public static String questionnaireName, questionnaireTitle;
 	public static int questionnaireID;
 	
 	
@@ -111,22 +111,22 @@ public class EditQ{
 		//gridLayout1.marginRight = 5;
 		//gridLayout1.marginBottom = 5;
 		leftPanel.setLayout(gridLayout1);
-		leftPanel.setLayoutData(new GridData(500, 480));
+		leftPanel.setLayoutData(new GridData(500, 530));
 		
 		// -- Code for the leftPanel -- //
 		
-		/*patientIdLbl = new Label(leftPanel, SWT.HORIZONTAL);
-		patientIdLbl.setText("Patient ID:");
+		titleLabel = new Label(leftPanel, SWT.HORIZONTAL);
+		titleLabel.setText("Title of Questionnaire:");
 		GridData gdLeftLbl = new GridData();
 		gdLeftLbl.horizontalSpan = 2;
-		patientIdLbl.setLayoutData(gdLeftLbl);
+		titleLabel.setLayoutData(gdLeftLbl);
 		
-		patientIdInput = new Text(leftPanel, SWT.SINGLE | SWT.BORDER);
+		titleInput = new Text(leftPanel, SWT.SINGLE | SWT.BORDER);
 		GridData gdLeftText = new GridData(490, 20);
 		gdLeftText.verticalAlignment = GridData.FILL;
 		gdLeftText.horizontalAlignment = GridData.FILL;
 		gdLeftText.horizontalSpan = 2;
-		patientIdInput.setLayoutData(gdLeftText);*/
+		titleInput.setLayoutData(gdLeftText);
 		
 	  // -- End of leftPanel -- //
 		
@@ -310,7 +310,7 @@ public class EditQ{
 	
 		rightPanel = new Composite(shell, SWT.BORDER);
 		rightPanel.setLayout(new GridLayout(1, false));
-		rightPanel.setLayoutData(new GridData(500, 480));
+		rightPanel.setLayoutData(new GridData(500, 530));
 		
 		// -- rightTopPanel -- //
 		

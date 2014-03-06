@@ -34,8 +34,8 @@ public class CreateQ{
 	public static Button prevQtnAddBtn, editQtnBtn, applyQtnBtn, deleteQtnBtn, exportBtn;
 	public static Label prevQtnTitleLbl, searchLbl, prevQuestionsLbl, prevAddQtnLbl;
 	
-	public static Label patientIdLbl, qtnLbl, qtnTypeLbl, answerLbl, answerListLbl, addQtnToListLbl, qtnListLbl, exportLbl;
-	public static Text patientIdInput, qtnInput, answerInput;
+	public static Label titleLabel, qtnLbl, qtnTypeLbl, answerLbl, answerListLbl, addQtnToListLbl, qtnListLbl, exportLbl;
+	public static Text titleInput, qtnInput, answerInput;
 	public static List answerList, prevQtnList, qtnList;
 	
 	public Connection connectToDB;
@@ -71,18 +71,18 @@ public class CreateQ{
 		
 		// -- Code for the leftPanel -- //
 		
-		/*patientIdLbl = new Label(leftPanel, SWT.HORIZONTAL);
-		patientIdLbl.setText("Patient ID:");
+		titleLabel = new Label(leftPanel, SWT.HORIZONTAL);
+		titleLabel.setText("Title of Questionnaire:");
 		GridData gdLeftLbl = new GridData();
 		gdLeftLbl.horizontalSpan = 2;
-		patientIdLbl.setLayoutData(gdLeftLbl);
+		titleLabel.setLayoutData(gdLeftLbl);
 		
-		patientIdInput = new Text(leftPanel, SWT.SINGLE | SWT.BORDER);
+		titleInput = new Text(leftPanel, SWT.SINGLE | SWT.BORDER);
 		GridData gdLeftText = new GridData(490, 20);
 		gdLeftText.verticalAlignment = GridData.FILL;
 		gdLeftText.horizontalAlignment = GridData.FILL;
 		gdLeftText.horizontalSpan = 2;
-		patientIdInput.setLayoutData(gdLeftText);*/
+		titleInput.setLayoutData(gdLeftText);
 		
 	  // -- End of leftPanel -- //
 		

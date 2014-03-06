@@ -181,133 +181,145 @@ class CreateQtnEvents implements SelectionListener, KeyListener, ModifyListener
 			
 			if(e.getSource() == CreateQ.exportBtn)
 			{
-				// For debug purposes.
-				String exportString = "";
-				
-				// Export.
-				String jsonString = "";
-														
-				int noOfQtns = arrayQuestionNames.size();																				
-				int maxID = 0;
-				String query = "";
-				
-				
-				try
+				// If a questionnaire title has been specified...	
+				if(CreateQ.titleInput.getCharCount() > 1)
 				{
-					// This is needed to set up the SQLite Driver, and also
-					// WE MUST ALSO PROVIDE THE 'sqlite-jdbc.jar' file before we submit it.
-					Class.forName("org.sqlite.JDBC");
-					// Connect to the Database.
-					connectToDB = DriverManager.getConnection("jdbc:sqlite:./database.sqlite");
-					// Queries will be executed from this instance.
-					statement = connectToDB.createStatement();
+					// --- PASTE HERE ---
 					
-					// Get the maximum ID from the Database. - No errors - Apparently, this is empty.
-					ResultSet rs = statement.executeQuery("SELECT max(question_id) FROM Questions;");
+					// For debug purposes.
+					String exportString = "";
+					
+					// Export.
+					String jsonString = "";
+															
+					int noOfQtns = arrayQuestionNames.size();																				
+					int maxID = 0;
+					String query = "";
 					
 					
-					while(rs.next())
+					try
 					{
-						//String questionName = rs.getString("question_name");
-						// Are you f**king kidding me!!!! All I had to do was also specify the aggregate function when retrieving the value. F***k, fml lol.
-						// It does work now.
-						maxID = rs.getInt("max(question_id)");
+						// This is needed to set up the SQLite Driver, and also
+						// WE MUST ALSO PROVIDE THE 'sqlite-jdbc.jar' file before we submit it.
+						Class.forName("org.sqlite.JDBC");
+						// Connect to the Database.
+						connectToDB = DriverManager.getConnection("jdbc:sqlite:./database.sqlite");
+						// Queries will be executed from this instance.
+						statement = connectToDB.createStatement();
 						
-						System.out.println("The maximum ID in the Questions is: " + maxID);
+						// Get the maximum ID from the Database. - No errors - Apparently, this is empty.
+						ResultSet rs = statement.executeQuery("SELECT max(question_id) FROM Questions;");
+						
+						
+						while(rs.next())
+						{
+							//String questionName = rs.getString("question_name");
+							// Are you f**king kidding me!!!! All I had to do was also specify the aggregate function when retrieving the value. F***k, fml lol.
+							// It does work now.
+							maxID = rs.getInt("max(question_id)");
+							
+							System.out.println("The maximum ID in the Questions is: " + maxID);
+						}
+						
+						// Creating the JSON Export...
+						// Each export will assign the questions with the same ID until the...
+						// ... the next export, and then next set of questions will have the same but, ID+1 ;)
+						// 
+						jsonString = "{\n" +
+															"\"questionnaire_" + (maxID+1) + "\" : [" + "\n" ;
+						
+						
+						for(int x = 0;x<noOfQtns;x++)
+						{
+							// Insert the question_name (and its other values) into the 'Questions' table.
+							query = "INSERT INTO Questions(question_id, question_name, question_type, possible_answers)" +
+											"VALUES(" + (maxID+1) +  ", '" + arrayQuestionNames.get(x) + "', '" + arrayQuestionType.get(x) + "',\"" + arrayAnswers.get(x) + "\");";
+							// This is working fine.
+							statement.executeUpdate(query);
+							
+						}
+					
+							
+						// Insert the 'question_id', 'questionnaire_name' and 'questionnaire_location' into the 'Questionnaires' table ;) - WORK NOW!
+						String questionnaire_name = CreateQ.titleInput.getText();
+						query = "INSERT INTO Questionnaires(question_id, questionnaire_name, questionnaire_location) VALUES(" + (maxID+1) + ", '" + questionnaire_name + "', './exports/');";
+						statement.executeUpdate(query);
+						
+						statement.close();	 // Works.
+						connectToDB.close(); // Works.
+						
+					}catch(ClassNotFoundException cnfe)
+					{
+						
+					}catch(SQLException sqle)
+					{
+						
 					}
-					
-					// Creating the JSON Export...
-					// Each export will assign the questions with the same ID until the...
-					// ... the next export, and then next set of questions will have the same but, ID+1 ;)
-					// 
-					jsonString = "{\n" +
-														"\"questionnaire_" + (maxID+1) + "\" : [" + "\n" ;
-					
 					
 					for(int x = 0;x<noOfQtns;x++)
 					{
-						// Insert the question_name (and its other values) into the 'Questions' table.
-						query = "INSERT INTO Questions(question_id, question_name, question_type, possible_answers)" +
-										"VALUES(" + (maxID+1) +  ", '" + arrayQuestionNames.get(x) + "', '" + arrayQuestionType.get(x) + "',\"" + arrayAnswers.get(x) + "\");";
-						// This is working fine.
-						statement.executeUpdate(query);
+						// Debug purposes.
+						exportString = exportString + (arrayQuestionNames.get(x) + "+" + arrayQuestionType.get(x) + "+" + arrayAnswers.get(x) + "and the length of answers is: " + arrayAnswers.get(x).length() + "\n");
+						
+						// Builds the JSON output.
+						jsonString = jsonString + "{ \"question\":\"" + arrayQuestionNames.get(x) + "\", \"type\":\"" + arrayQuestionType.get(x) + "\", \"answers\":\"" + arrayAnswers.get(x) + "\"},\n";		
 						
 					}
-				
-					
-					// Insert the 'question_id' into the 'Questionnaires' table ;) - WORK NOW!
-					query = "INSERT INTO Questionnaires(question_id) VALUES(" + (maxID+1) + ");";
-					statement.executeUpdate(query);
-					
-					statement.close();	 // Works.
-					connectToDB.close(); // Works.
-					
-				}catch(ClassNotFoundException cnfe)
-				{
-					
-				}catch(SQLException sqle)
-				{
-					
-				}
-				
-				for(int x = 0;x<noOfQtns;x++)
-				{
+					// Drops the trailing comma, and other crap: "},\n - that is 3 letters in length
+					jsonString = jsonString.substring(0, (jsonString.length()-3));
+					// Seals up the overall JSON object with: '}]}'
+					jsonString = jsonString + "}\n]\n}";
+					// I could have done this in the loop but, it could be exhaustive for the computer
+					// as checking whether we have reached the last question in a if statement might slow things down 
+		
 					// Debug purposes.
-					exportString = exportString + (arrayQuestionNames.get(x) + "+" + arrayQuestionType.get(x) + "+" + arrayAnswers.get(x) + "and the length of answers is: " + arrayAnswers.get(x).length() + "\n");
+					System.out.println(exportString);
+					System.out.println("The Questionnaire has been exported:\n" + jsonString);
 					
-					// Builds the JSON output.
-					jsonString = jsonString + "{ \"question\":\"" + arrayQuestionNames.get(x) + "\", \"type\":\"" + arrayQuestionType.get(x) + "\", \"answers\":\"" + arrayAnswers.get(x) + "\"},\n";		
+					// So far so good - I NEED TO MAKE IT SO THAT IT CREATES THE JSON FILE TOO ! ;D
 					
-				}
-				// Drops the trailing comma, and other crap: "},\n - that is 3 letters in length
-				jsonString = jsonString.substring(0, (jsonString.length()-3));
-				// Seals up the overall JSON object with: '}]}'
-				jsonString = jsonString + "}\n]\n}";
-				// I could have done this in the loop but, it could be exhaustive for the computer
-				// as checking whether we have reached the last question in a if statement might slow things down 
-	
-				// Debug purposes.
-				System.out.println(exportString);
-				System.out.println("The Questionnaire has been exported:\n" + jsonString);
-				
-				// So far so good - I NEED TO MAKE IT SO THAT IT CREATES THE JSON FILE TOO ! ;D
-				
-				// BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(new File("./exports/questionnaire.json")));
-				// I will later implement this section so it can detect what OS the application is being ran on. 		
-				try
-				{
-					
-					// Creates a JSON File, assigning a value to uniquely identify the file ;)
-					BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(new File("./exports/questionnaire_" + (maxID+1) +".json")));
-					// Write to the file.
-					bufferedWriter.write(jsonString); 
-					bufferedWriter.close();	// Closes the stream.
-					
-				}catch(NullPointerException ne)
-				{
+					// BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(new File("./exports/questionnaire.json")));
+					// I will later implement this section so it can detect what OS the application is being ran on. 		
+					try
+					{
 						
-				}catch(IOException ioe)
-				{
+						// Creates a JSON File, assigning a value to uniquely identify the file ;)
+						BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(new File("./exports/questionnaire_" + (maxID+1) +".json")));
+						// Write to the file.
+						bufferedWriter.write(jsonString); 
+						bufferedWriter.close();	// Closes the stream.
+						
+					}catch(NullPointerException ne)
+					{
+							
+					}catch(IOException ioe)
+					{
+						
+					}
 					
-				}
-				
-				// Should load up the 'prevQtnList' in real time ;)
-				// UNION returns no duplicates ;)
-				query = "SELECT question_name, question_type, possible_answers FROM Questions UNION SELECT question_name, question_type, possible_answers FROM Questions;";
-				
-				// Perform Query on start up.
-				loadQuestions(query);
-				
-				if(CreateQ.arrayPrevQtnNames.size() > 0)
-				{
-					// Enable the button if there are questions stored in the database.
-					CreateQ.prevQtnAddBtn.setEnabled(true);
+					// Should load up the 'prevQtnList' in real time ;)
+					// UNION returns no duplicates ;)
+					query = "SELECT question_name, question_type, possible_answers FROM Questions UNION SELECT question_name, question_type, possible_answers FROM Questions;";
+					
+					// Perform Query on start up.
+					loadQuestions(query);
+					
+					if(CreateQ.arrayPrevQtnNames.size() > 0)
+					{
+						// Enable the button if there are questions stored in the database.
+						CreateQ.prevQtnAddBtn.setEnabled(true);
+					}else
+					{
+						// Do nothing.
+					}
+						
+					// --- PASTE HERE ---
+							
 				}else
 				{
-					// Do nothing.
-				}
-				
-				
+					// Debug purposes.
+					System.out.println("Specify a title for the questionnaire before exporting the file");
+				}		
 				
 			}
 		
@@ -596,188 +608,195 @@ class CreateQtnEvents implements SelectionListener, KeyListener, ModifyListener
 		// A temp variable that will hold a list of answers.
 		String questionAnswer = "";
 		
-		
-		// I need to add more validations.
-		// If the field has at least two characters...
-		if(CreateQ.qtnInput.getCharCount() > 1)
-		{		
-				// Store the name of the question inputted (or that is already in the 'qtnInput' field).
-				questionName = CreateQ.qtnInput.getText();
-				
-				// The three radio buttons for the 'Type of Question'
-				if(CreateQ.singleChoiceBtn.getSelection() == true)
-				{
-					questionType = "SingleChoice";
-				}
-				else if(CreateQ.multiChoiceBtn.getSelection() == true)
-				{
-					questionType = "MultiChoice";
-				}
-				else if(CreateQ.userInputBtn.getSelection() == true)
-				{
-					questionType = "UserInputChoice";
-				}
-				else if(CreateQ.dateChoiceBtn.getSelection() == true)
-				{
-					questionType = "DateChoice";
-				}
-				
-				// If the 'answerList' is not empty, or either of the selected radio buttons are pressed...
-				if(CreateQ.answerList.getItemCount() > 0 || CreateQ.userInputBtn.getSelection() || CreateQ.dateChoiceBtn.getSelection())
-				{
-					// Add each answer to a String that will form a String of answers.
-					int lengthOfList = CreateQ.answerList.getItemCount();
+		if(CreateQ.titleInput.getCharCount() > 1)
+		{
+
+			// I need to add more validations.
+			// If the field has at least two characters...
+			if(CreateQ.qtnInput.getCharCount() > 1)
+			{		
+					// Store the name of the question inputted (or that is already in the 'qtnInput' field).
+					questionName = CreateQ.qtnInput.getText();
 					
-					// If the 'userInputBtn' or 'dateChoiceBtn' are selected, 'questionAnswer' will have an empty String value.
-					if(CreateQ.userInputBtn.getSelection() || CreateQ.dateChoiceBtn.getSelection())
+					// The three radio buttons for the 'Type of Question'
+					if(CreateQ.singleChoiceBtn.getSelection() == true)
 					{
-						// Do nothing. (i.e. 'questionAnswer' will have a value of "" - In other words, an empty string but, still has a length of 1).
+						questionType = "SingleChoice";
+					}
+					else if(CreateQ.multiChoiceBtn.getSelection() == true)
+					{
+						questionType = "MultiChoice";
+					}
+					else if(CreateQ.userInputBtn.getSelection() == true)
+					{
+						questionType = "UserInputChoice";
+					}
+					else if(CreateQ.dateChoiceBtn.getSelection() == true)
+					{
+						questionType = "DateChoice";
+					}
+					
+					// If the 'answerList' is not empty, or either of the selected radio buttons are pressed...
+					if(CreateQ.answerList.getItemCount() > 0 || CreateQ.userInputBtn.getSelection() || CreateQ.dateChoiceBtn.getSelection())
+					{
+						// Add each answer to a String that will form a String of answers.
+						int lengthOfList = CreateQ.answerList.getItemCount();
+						
+						// If the 'userInputBtn' or 'dateChoiceBtn' are selected, 'questionAnswer' will have an empty String value.
+						if(CreateQ.userInputBtn.getSelection() || CreateQ.dateChoiceBtn.getSelection())
+						{
+							// Do nothing. (i.e. 'questionAnswer' will have a value of "" - In other words, an empty string but, still has a length of 1).
+							
+						}else
+						{
+							// Otherwise, do the following...
+							for(int x = 0;x<lengthOfList;x++)
+							{
+									if((x+1) == lengthOfList)
+									{
+										// This will drop the '-' character for when we add the last answer to the String.
+										questionAnswer = questionAnswer + CreateQ.answerList.getItem(x);
+									}else
+									{
+										// Errr, yeah... lol.
+										questionAnswer = questionAnswer + (CreateQ.answerList.getItem(x) + "@");	
+									}
+								}
+						}
+						
+						
+						// if the 'addQtnToListBtn' was clicked...
+						if(btn == CreateQ.addQtnToListBtn)
+						{
+							// Add the name of the question inputted, to the array.
+							arrayQuestionNames.add(questionName);
+							
+							// Adds the questionType to the 'arrayQuestionType'
+							arrayQuestionType.add(questionType);
+							
+							// Now we add the String of answers to 'arrayAnswers'
+							arrayAnswers.add(questionAnswer);
+							// So far so good :)
+							
+							// Add the Question to the List  'qtnList' - Currently added questions.
+							CreateQ.qtnList.add(questionName);
+							
+							
+							// ------ I NEED TO MODIFY THIS SECTION SO I CAN ADD IT FOR THE OTHER BUTTONS TOO! ALL DONE ----- //
+							
+							// Enable 'editQtnBtn', 'applyQtnBtn', and 'deleteQtnBtn'
+							CreateQ.editQtnBtn.setEnabled(true);
+							//CreateQ.applyQtnBtn.setEnabled(true);
+							CreateQ.deleteQtnBtn.setEnabled(true);
+							
+							// Enable 'exportBtn'
+							CreateQ.exportBtn.setEnabled(true);
+							
+							// Disable the 'editAnsBtn' and 'deleteAnsBtn'
+							CreateQ.editAnsBtn.setEnabled(false);
+							CreateQ.deleteAnsBtn.setEnabled(false);
+						
+							
+							// Set the 'qtnList' to automatically select the most recent question added. - WORKS NICELY! :)
+							CreateQ.qtnList.setSelection(CreateQ.qtnList.getItemCount()-1);
+							
+							
+							
+							// Clean up the 'qtnInput' field, 'answerInput' field, 'answerList'
+							CreateQ.qtnInput.setText("");
+							CreateQ.answerInput.setText("");
+							CreateQ.answerList.removeAll();
+							
+							
+							// Debug purposes.
+							System.out.println("questionName: " + questionName + ", questionType: " + questionType + " questionAnswer=" + questionAnswer);	
+									
+							// ------ I NEED TO MODIFY THIS SECTION SO I CAN ADD IT FOR THE OTHER BUTTONS TOO! ALL DONE ----- //			
+							
+							
+						}
+						// if the 'applyQtnBtn' was clicked...
+						else if(btn == CreateQ.applyQtnBtn)
+						{
+							int selectedQtnIndex = CreateQ.qtnList.getSelectionIndex();
+							// Keep a reference of the old question that we can later use to delete, edit, etc. 
+							String oldQuestionName = questionName;
+							
+							// Allow the user to, once again, interact with the 'qtnList'.
+							CreateQ.qtnList.setEnabled(true);
+							
+							// Allow the user to, once again, add a question to the 'qtnList'.
+							CreateQ.addQtnToListBtn.setEnabled(true);
+							// Allow the user to, once again, add a question from 'prevQtnList' to the main list.
+							CreateQ.prevQtnAddBtn.setEnabled(true);
+			
+							// Delete the old Question from the 'qtnList'.
+							CreateQ.qtnList.remove(selectedQtnIndex);
+							// Delete the old Question from the array too.
+							arrayQuestionNames.remove(selectedQtnIndex);				
+							// Add the modfied name of the question inputted, to the 'qtnList'
+							CreateQ.qtnList.add(questionName, selectedQtnIndex);
+							// Add the modified name of the question inputted, to the array.
+							arrayQuestionNames.add(selectedQtnIndex, questionName);
+							
+							
+		
+							// Delete the old 'questionType' from the 'arrayQuestionType'
+							arrayQuestionType.remove(selectedQtnIndex);
+							// Adds the new modified 'questionType' to 'arrayQuestionType'
+							arrayQuestionType.add(selectedQtnIndex, questionType);
+							// Delete the old 'questionAnswer' from 'arrayAnswers'
+							arrayAnswers.remove(selectedQtnIndex);
+							// Now we add the new String of answers to 'arrayAnswers'
+							arrayAnswers.add(selectedQtnIndex, questionAnswer);
+							// So far so good :) - CONFIRMED!
+							
+							// Clean up the 'qtnInput' field, 'answerInput' field, and 'answerList'
+							CreateQ.qtnInput.setText("");
+							CreateQ.answerInput.setText("");
+							CreateQ.answerList.removeAll();
+							
+							// Set radio button 'singleChoiceBtn' to be selected. - I could delete this.
+							CreateQ.singleChoiceBtn.setSelection(true);
+							CreateQ.multiChoiceBtn.setSelection(false);
+							CreateQ.userInputBtn.setSelection(false);
+							CreateQ.dateChoiceBtn.setSelection(false);
+							// CONTINUE FROM HERE!
+							
+							
+							// Enable the 'editQtnBtn'
+							CreateQ.editQtnBtn.setEnabled(true);
+							// Disable the 'applyQtn'
+							CreateQ.applyQtnBtn.setEnabled(false);
+							// Enable the 'deleteQtnBtn'.
+							CreateQ.deleteQtnBtn.setEnabled(true);
+							
+							// Disable 'editAnsBtn', deleteAnsBtn' and the 'answerInput' field.
+							CreateQ.editAnsBtn.setEnabled(false);
+							CreateQ.deleteAnsBtn.setEnabled(false);
+							CreateQ.applyAnsBtn.setEnabled(false);
+							
+							
+							
+							// Sets the list to select the modifed question.
+							CreateQ.qtnList.setSelection(selectedQtnIndex);				
+							
+						}
 						
 					}else
 					{
-						// Otherwise, do the following...
-						for(int x = 0;x<lengthOfList;x++)
-						{
-								if((x+1) == lengthOfList)
-								{
-									// This will drop the '-' character for when we add the last answer to the String.
-									questionAnswer = questionAnswer + CreateQ.answerList.getItem(x);
-								}else
-								{
-									// Errr, yeah... lol.
-									questionAnswer = questionAnswer + (CreateQ.answerList.getItem(x) + "@");	
-								}
-							}
-					}
-					
-					
-					// if the 'addQtnToListBtn' was clicked...
-					if(btn == CreateQ.addQtnToListBtn)
-					{
-						// Add the name of the question inputted, to the array.
-						arrayQuestionNames.add(questionName);
-						
-						// Adds the questionType to the 'arrayQuestionType'
-						arrayQuestionType.add(questionType);
-						
-						// Now we add the String of answers to 'arrayAnswers'
-						arrayAnswers.add(questionAnswer);
-						// So far so good :)
-						
-						// Add the Question to the List  'qtnList' - Currently added questions.
-						CreateQ.qtnList.add(questionName);
-						
-						
-						// ------ I NEED TO MODIFY THIS SECTION SO I CAN ADD IT FOR THE OTHER BUTTONS TOO! ALL DONE ----- //
-						
-						// Enable 'editQtnBtn', 'applyQtnBtn', and 'deleteQtnBtn'
-						CreateQ.editQtnBtn.setEnabled(true);
-						//CreateQ.applyQtnBtn.setEnabled(true);
-						CreateQ.deleteQtnBtn.setEnabled(true);
-						
-						// Enable 'exportBtn'
-						CreateQ.exportBtn.setEnabled(true);
-						
-						// Disable the 'editAnsBtn' and 'deleteAnsBtn'
-						CreateQ.editAnsBtn.setEnabled(false);
-						CreateQ.deleteAnsBtn.setEnabled(false);
-					
-						
-						// Set the 'qtnList' to automatically select the most recent question added. - WORKS NICELY! :)
-						CreateQ.qtnList.setSelection(CreateQ.qtnList.getItemCount()-1);
-						
-						
-						
-						// Clean up the 'qtnInput' field, 'answerInput' field, 'answerList'
-						CreateQ.qtnInput.setText("");
-						CreateQ.answerInput.setText("");
-						CreateQ.answerList.removeAll();
-						
-						
-						// Debug purposes.
-						System.out.println("questionName: " + questionName + ", questionType: " + questionType + " questionAnswer=" + questionAnswer);	
-								
-						// ------ I NEED TO MODIFY THIS SECTION SO I CAN ADD IT FOR THE OTHER BUTTONS TOO! ALL DONE ----- //			
-						
-						
-					}
-					// if the 'applyQtnBtn' was clicked...
-					else if(btn == CreateQ.applyQtnBtn)
-					{
-						int selectedQtnIndex = CreateQ.qtnList.getSelectionIndex();
-						// Keep a reference of the old question that we can later use to delete, edit, etc. 
-						String oldQuestionName = questionName;
-						
-						// Allow the user to, once again, interact with the 'qtnList'.
-						CreateQ.qtnList.setEnabled(true);
-						
-						// Allow the user to, once again, add a question to the 'qtnList'.
-						CreateQ.addQtnToListBtn.setEnabled(true);
-						// Allow the user to, once again, add a question from 'prevQtnList' to the main list.
-						CreateQ.prevQtnAddBtn.setEnabled(true);
-		
-						// Delete the old Question from the 'qtnList'.
-						CreateQ.qtnList.remove(selectedQtnIndex);
-						// Delete the old Question from the array too.
-						arrayQuestionNames.remove(selectedQtnIndex);				
-						// Add the modfied name of the question inputted, to the 'qtnList'
-						CreateQ.qtnList.add(questionName, selectedQtnIndex);
-						// Add the modified name of the question inputted, to the array.
-						arrayQuestionNames.add(selectedQtnIndex, questionName);
-						
-						
-	
-						// Delete the old 'questionType' from the 'arrayQuestionType'
-						arrayQuestionType.remove(selectedQtnIndex);
-						// Adds the new modified 'questionType' to 'arrayQuestionType'
-						arrayQuestionType.add(selectedQtnIndex, questionType);
-						// Delete the old 'questionAnswer' from 'arrayAnswers'
-						arrayAnswers.remove(selectedQtnIndex);
-						// Now we add the new String of answers to 'arrayAnswers'
-						arrayAnswers.add(selectedQtnIndex, questionAnswer);
-						// So far so good :) - CONFIRMED!
-						
-						// Clean up the 'qtnInput' field, 'answerInput' field, and 'answerList'
-						CreateQ.qtnInput.setText("");
-						CreateQ.answerInput.setText("");
-						CreateQ.answerList.removeAll();
-						
-						// Set radio button 'singleChoiceBtn' to be selected. - I could delete this.
-						CreateQ.singleChoiceBtn.setSelection(true);
-						CreateQ.multiChoiceBtn.setSelection(false);
-						CreateQ.userInputBtn.setSelection(false);
-						CreateQ.dateChoiceBtn.setSelection(false);
-						// CONTINUE FROM HERE!
-						
-						
-						// Enable the 'editQtnBtn'
-						CreateQ.editQtnBtn.setEnabled(true);
-						// Disable the 'applyQtn'
-						CreateQ.applyQtnBtn.setEnabled(false);
-						// Enable the 'deleteQtnBtn'.
-						CreateQ.deleteQtnBtn.setEnabled(true);
-						
-						// Disable 'editAnsBtn', deleteAnsBtn' and the 'answerInput' field.
-						CreateQ.editAnsBtn.setEnabled(false);
-						CreateQ.deleteAnsBtn.setEnabled(false);
-						CreateQ.applyAnsBtn.setEnabled(false);
-						
-						
-						
-						// Sets the list to select the modifed question.
-						CreateQ.qtnList.setSelection(selectedQtnIndex);				
-						
-					}
-					
-				}else
-				{
-					// if 'answerList' - A dialog box should pop up if there are no answers supplied!
-					System.out.println("At least input an answer!");
-				}						
+						// if 'answerList' - A dialog box should pop up if there are no answers supplied!
+						System.out.println("At least input an answer!");
+					}						
+			}else
+			{
+				// if 'qtnInput' - A dialog box should pop up if the text is empty!
+				System.out.println("Type in a Question!");
+			}
 		}else
 		{
-			// if 'qtnInput' - A dialog box should pop up if the text is empty!
-			System.out.println("Type in a Question!");
+			// Debug purposes.
+			System.out.println("Specify a title for the questionnaire");
 		}
 		
 		//-------------------------------//-------------------------------//-------------------------------//
