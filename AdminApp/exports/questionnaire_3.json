@@ -1,0 +1,7 @@
+{
+"questionnaire" : [
+{ "question":"What time is it?", "type":"SingleChoice", "answers":"2am@3am@F*** knows"},
+{ "question":"Do you eat at this time?", "type":"SingleChoice", "answers":"F*** Yeaaah@Nope"},
+{ "question":"A new question was added from AdminApp 2.0", "type":"MultiChoice", "answers":"Yeah@Boy@Hehehe"}
+]
+}

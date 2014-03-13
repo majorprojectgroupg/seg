@@ -1,0 +1,6 @@
+{
+"questionnaire" : [
+{ "question":"How long have you had this disease for?", "type":"SingleChoice", "answers":"1 month@2 months@3-6 months@a year@a year plus"},
+{ "question":"Are you on medication?", "type":"SingleChoice", "answers":"Yes@No"}
+]
+}

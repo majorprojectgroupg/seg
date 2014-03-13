@@ -1,0 +1,6 @@
+{
+"questionnaire" : [
+{ "question":"What is your name?", "type":"UserInputChoice", "answers":""},
+{ "question":"Where do you live?", "type":"SingleChoice", "answers":"Paris@London@Barcelona"}
+]
+}
