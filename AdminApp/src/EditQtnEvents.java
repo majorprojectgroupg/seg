@@ -285,7 +285,7 @@ class EditQtnEvents implements SelectionListener, KeyListener, ModifyListener
 							// I NEED TO TEST THIS PART OUT THOROUGHLY.
 							// Updates the 'Questionnaires' table with the questionnaire title ;) - Works hehe :)
 							query = "UPDATE Questionnaires SET Questionnaire_name='" + EditQ.titleInput.getText() + "' WHERE Questionnaire_name='" + EditQ.questionnaireName + "' AND Questionnaire_id=" + EditQ.questionnaireID + ";";
-							statement.executeQuery(query);
+							statement.executeUpdate(query);
 
 
 							statement.close();	 // Works.

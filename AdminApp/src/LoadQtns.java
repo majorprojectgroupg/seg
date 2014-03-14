@@ -164,7 +164,8 @@ public class LoadQtns extends Shell {
 				
 				// Open the load questionnaire window.
 					shell.dispose();
-					new main_menu(display);
+					// For some reason this does not work.
+					main_menu main_menu = new main_menu(display);
 				
 				
 			}
@@ -211,103 +212,7 @@ public class LoadQtns extends Shell {
 				
 				
 				// -- Pasted code goes here aha -- //
-				/*
-				if(EditQ.questionnaireName.isEmpty())
-				{
-					// Do nothing.
-					System.out.println("No questionnaire has been selected");
-				}else
-				{					
-						System.out.println("A questionnaire has been selected from the 'Load a Questionnaire' Window");
-						EditQ.addQtnToListBtn.setEnabled(true);
-					
-						// Debug purposes - That works aha.
-						System.out.println(EditQ.questionnaireName + " was selected.");
-
-
-						// Query :)
-						String query = "SELECT question_name, question_type, possible_answers FROM Questions WHERE question_id=" + EditQ.questionnaireID + ";";
-
-
-
-
-						// Empty the ArrayLists.
-						EditQtnEvents.arrayQuestionNames = new ArrayList<String>();
-						EditQtnEvents.arrayQuestionType = new ArrayList<String>();
-						EditQtnEvents.arrayAnswers = new ArrayList<String>();
-
-
-
-
-						try
-						{
-							//String query = "";
-							// This is needed to set up the SQLite Driver, and also
-							// WE MUST ALSO PROVIDE THE 'sqlite-jdbc.jar' file before we submit it.
-							Class.forName("org.sqlite.JDBC");
-							// Connect to the Database.
-							connectToDB = DriverManager.getConnection("jdbc:sqlite:./database.sqlite");
-							// Queries will be executed from this instance.
-							statement = connectToDB.createStatement();
-
-
-
-
-							ResultSet rs = statement.executeQuery(query);
-
-
-							// Loop through each row...
-							while(rs.next())
-							{
-								// Retrieve the Question name
-								EditQtnEvents.arrayQuestionNames.add(rs.getString("question_name"));
-								// Retrieve the Question type
-								EditQtnEvents.arrayQuestionType.add(rs.getString("question_type"));
-								// Rerieve the String of answers for each question.
-								EditQtnEvents.arrayAnswers.add(rs.getString("possible_answers"));
-							}
-
-
-							// Works aha.
-
-
-							String Qtns[] = {};
-							// Returns an array with the type according to the type of array passed in. In this case, a String.
-							Qtns = EditQtnEvents.arrayQuestionNames.toArray(Qtns);
-							// Load the Questions from the database onto the 'qtnList'.
-							EditQ.qtnList.setItems(Qtns);
-
-
-							// Set it to automatically select the first question - I will get back to this.
-							EditQ.qtnList.select(0);
-
-
-							// Enable 'editQtnBtn', 'applyQtnBtn', and 'deleteQtnBtn'
-							EditQ.editQtnBtn.setEnabled(true);
-							//EditQ.applyQtnBtn.setEnabled(true);
-							EditQ.deleteQtnBtn.setEnabled(true);
-
-
-							// Enable 'updateBtn'
-							EditQ.updateBtn.setEnabled(true);
-
-
-							// Set the 'titleInput' to the title of the questionnaire selected from the FileDialog. 
-							EditQ.titleInput.setText(EditQ.questionnaireTitle);	
-
-
-						}catch(SQLException sqle)
-						{
-							sqle.printStackTrace();
-						}
-						catch(ClassNotFoundException cnfe)
-						{
-							cnfe.printStackTrace();
-						}
 				
-				}
-				*/
-				// -- End of pasted code -- //
 				
 			}
 		});

@@ -22,7 +22,6 @@ public class main_menu {
 	 * Create contents of the window.
 	 */
 	protected main_menu(final Display display) {
-		//queries = new sql_queries();
 		shell = new Shell(display);
 		shell.setBackground(SWTResourceManager.getColor(211, 211, 211));
 		shell.setSize(547, 438);
@@ -83,10 +82,11 @@ public class main_menu {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				shell.dispose();
-				
-				// Open the load questionnaire window.
+	
+							
+				// --- Open the Load Questionnaire Window -- //
 				try {
-					//Display display = Display.getDefault();
+					Display display = Display.getDefault();
 					LoadQtns shell = new LoadQtns(display);
 					shell.open();
 					shell.layout();
@@ -99,7 +99,11 @@ public class main_menu {
 				} catch (Exception exception) {
 					exception.printStackTrace();
 				}
-				// --- End of code aha.			
+				// --- END -- //
+				
+				// New code starts here now... muwhaha.
+				//new LoadQtns(display);
+				
 			}
 		});
 	
