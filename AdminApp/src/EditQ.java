@@ -1,10 +1,4 @@
-
-
-import java.awt.Color;
 import java.util.ArrayList;
-import java.util.Arrays;
-
-
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Button;
@@ -14,17 +8,15 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.List;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
-import org.eclipse.swt.widgets.FileDialog;
-
-
-import org.eclipse.swt.layout.FillLayout;
-import org.eclipse.swt.layout.RowLayout;
-import org.eclipse.swt.layout.RowData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.layout.GridData;
 
 
+
+
 import org.eclipse.swt.SWT;
+
+
 
 
 import java.sql.Connection;
@@ -39,7 +31,13 @@ import org.eclipse.wb.swt.SWTResourceManager;
 
 
 
+
+
+
+
 public class EditQ{
+
+
 
 
 	public static Shell shell;
@@ -47,9 +45,13 @@ public class EditQ{
 	public static Button singleChoiceBtn, multiChoiceBtn, userInputBtn, dateChoiceBtn, editAnsBtn, deleteAnsBtn, applyAnsBtn, addQtnToListBtn;
 
 
+
+
 	public static Text searchInput;
 	public static Button prevQtnAddBtn, editQtnBtn, applyQtnBtn, deleteQtnBtn, updateBtn;
 	public static Label prevQtnTitleLbl, searchLbl, prevQuestionsLbl, prevAddQtnLbl;
+
+
 
 
 	public static Label titleLabel, qtnLbl, qtnTypeLbl, answerLbl, answerListLbl, addQtnToListLbl, qtnListLbl, exportLbl;
@@ -57,8 +59,12 @@ public class EditQ{
 	public static List answerList, prevQtnList, qtnList;
 
 
+
+
 	public Connection connectToDB;
 	public Statement statement;
+
+
 
 
 	public static ArrayList<String> arrayPrevQtnNames;
@@ -66,24 +72,35 @@ public class EditQ{
 	public static ArrayList<String> arrayPrevAnswers;
 
 
+
+
 	public static Menu menuBar, fileMenu, openMenu;
 	public static MenuItem fileMenuHeader, exitMenuItem;
 
 
-	
+
+
+
+
 	public static String questionnaireName, questionnaireTitle, questionnaireLocation;
 	public static int questionnaireID;
+
+
+
 
 
 
 	// Constructor.
 	public EditQ(final Display display)
 	{
-		
+
+
 		// Initialise the main ArrayLists.
 		EditQtnEvents.arrayQuestionNames = new ArrayList<String>();
 		EditQtnEvents.arrayQuestionType = new ArrayList<String>();
 		EditQtnEvents.arrayAnswers = new ArrayList<String>();
+
+
 
 
 		shell = new Shell(display);
@@ -93,20 +110,33 @@ public class EditQ{
 		// Has two columns, and 'makeColumnsEqualWidth' = false.
 
 
+
+
 		// MenuBar
 		menuBar = new Menu(shell, SWT.BAR);
 		menuBar.setVisible(true);
+
+
 
 
     fileMenuHeader = new MenuItem(menuBar, SWT.CASCADE);
     fileMenuHeader.setText("&File");
 
 
+
+
     fileMenu = new Menu(shell, SWT.DROP_DOWN);
     fileMenuHeader.setMenu(fileMenu);
 
 
-		
+
+
+
+
+
+
+
+
 
 
 
@@ -115,30 +145,50 @@ public class EditQ{
 		exitMenuItem.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				
+
 				shell.dispose();
-				new main_menu(display);
+				LoadQtns.shell.dispose();
+			
 			}
 		});
 		exitMenuItem.setText("&Return to Main Menu");
+
+
 
 
 		// Set the menu bar.
 		shell.setMenuBar(menuBar);
 
 
+
+
 		// -- End of menu bar.
+
+
 
 
 		// -- Open dialog -- //
 
 
-		
+
+
+
+
+
+
+
+
 
 
 
 
 		shell.setLayout(new GridLayout(2, true));
+
+
+
+
+
+
 
 
 
@@ -155,7 +205,11 @@ public class EditQ{
 		leftPanel.setLayoutData(new GridData(500, 530));
 
 
+
+
 		// -- Code for the leftPanel -- //
+
+
 
 
 		titleLabel = new Label(leftPanel, SWT.HORIZONTAL);
@@ -167,6 +221,8 @@ public class EditQ{
 		titleLabel.setLayoutData(gdLeftLbl);
 
 
+
+
 		titleInput = new Text(leftPanel, SWT.SINGLE | SWT.BORDER);
 		GridData gdLeftText = new GridData(490, 20);
 		gdLeftText.verticalAlignment = GridData.FILL;
@@ -175,10 +231,16 @@ public class EditQ{
 		titleInput.setLayoutData(gdLeftText);
 
 
+
+
 	  // -- End of leftPanel -- //
 
 
+
+
 		// -- Code for leftMainPanel -- //
+
+
 
 
 		leftMainPanel = new Composite(leftPanel, SWT.BORDER);
@@ -192,6 +254,8 @@ public class EditQ{
 		leftMainPanel.setLayoutData(new GridData(500, 290));
 
 
+
+
 		qtnLbl = new Label(leftMainPanel, SWT.HORIZONTAL);
 		qtnLbl.setFont(SWTResourceManager.getFont("Segoe UI", 9, SWT.BOLD));
 		qtnLbl.setBackground(SWTResourceManager.getColor(211, 211, 211));
@@ -203,12 +267,16 @@ public class EditQ{
 		qtnLbl.setText("Name of the Question:");
 
 
+
+
 		qtnInput = new Text(leftMainPanel, SWT.SINGLE | SWT.BORDER);
 		GridData gdLeftMain2 = new GridData(490, 20);
 		gdLeftMain2.horizontalSpan = 2;
 		gdLeftMain2.horizontalAlignment = GridData.FILL;
 		gdLeftMain2.verticalAlignment = GridData.FILL;
 		qtnInput.setLayoutData(gdLeftMain2);
+
+
 
 
 		qtnTypeLbl = new Label(leftMainPanel, SWT.HORIZONTAL);
@@ -222,13 +290,19 @@ public class EditQ{
 		qtnTypeLbl.setLayoutData(gdLeftMain3);
 
 
+
+
 		// -- Type of Answers Radio Group -- //
+
+
 
 
 		radioBtnGroup = new Composite(leftMainPanel, SWT.BORDER | SWT.NONE);
 		radioBtnGroup.setBackground(SWTResourceManager.getColor(211, 211, 211));
 		radioBtnGroup.setLayout(new GridLayout(4, false));
 		radioBtnGroup.setLayoutData(new GridData(480, 30));
+
+
 
 
 		singleChoiceBtn = new Button(radioBtnGroup, SWT.RADIO);
@@ -241,16 +315,24 @@ public class EditQ{
 
 
 
+
+
+
+
 		multiChoiceBtn = new Button(radioBtnGroup, SWT.RADIO);
 		multiChoiceBtn.setForeground(SWTResourceManager.getColor(211, 211, 211));
 		multiChoiceBtn.setText("Multiple Choice");
 		multiChoiceBtn.addSelectionListener(new EditQtnEvents());
 
 
+
+
 		userInputBtn = new Button(radioBtnGroup, SWT.RADIO);
 		userInputBtn.setForeground(SWTResourceManager.getColor(211, 211, 211));
 		userInputBtn.setText("User Input");
 		userInputBtn.addSelectionListener(new EditQtnEvents());
+
+
 
 
 		// I need to carefully implement this.
@@ -261,7 +343,11 @@ public class EditQ{
 		new Label(leftMainPanel, SWT.NONE);
 
 
+
+
 		// -- End of Answers Radio Group -- //
+
+
 
 
 		answerLbl = new Label(leftMainPanel, SWT.HORIZONTAL);
@@ -275,6 +361,8 @@ public class EditQ{
 		answerLbl.setLayoutData(gdLeftMain4);
 
 
+
+
 		answerInput = new Text(leftMainPanel, SWT.SINGLE | SWT.BORDER);
 		// Adds a 'KeyListener'
 		answerInput.addKeyListener(new EditQtnEvents());
@@ -283,6 +371,8 @@ public class EditQ{
 		gdLeftMain5.horizontalAlignment = GridData.FILL;
 		gdLeftMain5.verticalAlignment = GridData.FILL;
 		answerInput.setLayoutData(gdLeftMain5);
+
+
 
 
 		answerListLbl = new Label(leftMainPanel, SWT.HORIZONTAL);
@@ -298,9 +388,15 @@ public class EditQ{
 
 
 
+
+
+
+
 		answerList = new List(leftMainPanel, SWT.SINGLE | SWT.BORDER);
 		//String data[] = {"Welcome to here", "Welcome to near", "Welcome to there", "Welcome to ahahaha", "One more times for my mums"};
 		//answerList.setItems(data);
+
+
 
 
 		GridData gdLeftMain7 = new GridData(500, 110);
@@ -310,10 +406,16 @@ public class EditQ{
 		answerList.setLayoutData(gdLeftMain7);
 
 
+
+
 		//leftMainPanel.setLayout(new GridLayout(3, false));
 
 
+
+
 		// -- leftBottomPanel -- //
+
+
 
 
 		// The SWT.BORDER is for debug purposes.
@@ -329,6 +431,14 @@ public class EditQ{
 
 
 
+
+
+
+
+
+
+
+
 		editAnsBtn = new Button(leftBottomPanel, SWT.PUSH);
 		// Add SelectionListener event.
 		editAnsBtn.addSelectionListener(new EditQtnEvents());
@@ -336,7 +446,11 @@ public class EditQ{
 		editAnsBtn.setText("Edit Answer");
 
 
+
+
 		// For some reason, anything added to second column of 'leftMainPanel' from here on, does not appear :/ - SOLVED IT!
+
+
 
 
 		applyAnsBtn = new Button(leftBottomPanel, SWT.PUSH);
@@ -348,11 +462,21 @@ public class EditQ{
 
 
 
+
+
+
+
 		deleteAnsBtn = new Button(leftBottomPanel, SWT.PUSH);
 		// Add SelectionListener event.
 		deleteAnsBtn.addSelectionListener(new EditQtnEvents());
 		deleteAnsBtn.setEnabled(false);
 		deleteAnsBtn.setText("Delete Answer");
+
+
+
+
+
+
 
 
 
@@ -370,12 +494,16 @@ public class EditQ{
 		addQtnToListLbl.setLayoutData(gdLeftMain8);
 
 
+
+
 		addQtnToListBtn = new Button(leftBottomPanel, SWT.PUSH);
 		addQtnToListBtn.setText("Add to List");
 		// Add a SelectionListener.
 		addQtnToListBtn.addSelectionListener(new EditQtnEvents());
 		new Label(leftBottomPanel, SWT.NONE);
 		new Label(leftBottomPanel, SWT.NONE);
+
+
 
 
 		exportLbl = new Label(leftBottomPanel, SWT.HORIZONTAL);
@@ -387,6 +515,8 @@ public class EditQ{
 		gdLeftMain10.horizontalAlignment = GridData.FILL;
 		gdLeftMain10.verticalAlignment = GridData.FILL;
 		exportLbl.setLayoutData(gdLeftMain10);
+
+
 
 
 		updateBtn = new Button(leftBottomPanel, SWT.PUSH);
@@ -406,13 +536,29 @@ public class EditQ{
 
 
 
+
+
+
+
+
+
+
+
+
+
 		// -- leftBottomPanel (end) -- //
+
+
 
 
 		// -- End of code for leftMainPanel -- //
 
 
+
+
 		// -- Code for rightPanel -- //
+
+
 
 
 		rightPanel = new Composite(shell, SWT.BORDER);
@@ -421,13 +567,19 @@ public class EditQ{
 		rightPanel.setLayoutData(new GridData(500, 530));
 
 
+
+
 		// -- rightTopPanel -- //
+
+
 
 
 		rightTopPanel = new Composite(rightPanel, SWT.BORDER);
 		rightTopPanel.setBackground(SWTResourceManager.getColor(211, 211, 211));
 		rightTopPanel.setLayout(new GridLayout(2, false));
 		rightTopPanel.setLayoutData(new GridData(500, 265));
+
+
 
 
 		prevQtnTitleLbl = new Label(rightTopPanel, SWT.HORIZONTAL);
@@ -439,6 +591,8 @@ public class EditQ{
 		//gdRightTop3.verticalAlignment = GridData.FILL;
 		gdRightTop1.horizontalAlignment = GridData.FILL;
 		prevQtnTitleLbl.setLayoutData(gdRightTop1);
+
+
 
 
 		searchLbl = new Label(rightTopPanel, SWT.HORIZONTAL);
@@ -453,6 +607,8 @@ public class EditQ{
 		new Label(rightTopPanel, SWT.NONE);
 
 
+
+
 		searchInput = new Text(rightTopPanel, SWT.SINGLE | SWT.BORDER);
 		// Add a ModifyListener.
 		searchInput.addModifyListener(new EditQtnEvents());
@@ -461,6 +617,8 @@ public class EditQ{
 		gdRightTop3.verticalAlignment = GridData.FILL;
 		gdRightTop3.horizontalAlignment = GridData.FILL;
 		searchInput.setLayoutData(gdRightTop3);
+
+
 
 
 		prevQuestionsLbl = new Label(rightTopPanel, SWT.HORIZONTAL);
@@ -474,6 +632,8 @@ public class EditQ{
 		prevQuestionsLbl.setLayoutData(gdRightTop4);
 
 
+
+
 		prevQtnList = new List(rightTopPanel, SWT.SINGLE | SWT.BORDER);
 		//String prevQtndata[] = {"Do you like beef", "Are you a veggie?", "Why are you here?", "Is the NHS helpful?", "Does this work?"};
 		//prevQtnList.setItems(prevQtndata);
@@ -484,7 +644,11 @@ public class EditQ{
 		prevQtnList.setLayoutData(gdRightTop5);
 
 
+
+
 		// Load all the questions from the database into the 'prevQtnList'. - IT WORKS GRACEFULLY! :)
+
+
 
 
 		// Initialises the ArrayLists.
@@ -493,9 +657,13 @@ public class EditQ{
 		//arrayPrevAnswers = new ArrayList<String>();
 
 
+
+
 		String query = "";
 		// UNION returns no duplicates ;)
 		query = "SELECT question_name, question_type, possible_answers FROM Questions UNION SELECT question_name, question_type, possible_answers FROM Questions;";
+
+
 
 
 		// Perform Query on start up.
@@ -504,7 +672,13 @@ public class EditQ{
 
 
 
+
+
+
+
 		// End of 'prevQtnList. - Loading questions from the database into the 'prevQtnList.
+
+
 
 
 		prevAddQtnLbl = new Label(rightTopPanel, SWT.HORIZONTAL);
@@ -518,6 +692,8 @@ public class EditQ{
 		prevAddQtnLbl.setLayoutData(gdRightTop6);
 
 
+
+
 		prevQtnAddBtn = new Button(rightTopPanel, SWT.PUSH);
 		prevQtnAddBtn.addSelectionListener(new EditQtnEvents());
 		prevQtnAddBtn.setText("Add to List");
@@ -527,8 +703,11 @@ public class EditQ{
 		gdRightTop7.horizontalSpan = 2;
 
 
+
+
 		prevQtnAddBtn.setLayoutData(gdRightTop7);
-		
+
+
 		// If a questionnaire has not been loaded...
 		if(EditQ.titleInput.getCharCount() <= 0)
 		{
@@ -536,28 +715,38 @@ public class EditQ{
 			EditQ.addQtnToListBtn.setEnabled(false);
 		}
 
+
 		// If there is at least one saved questionnaire stored in the database...
 		if(arrayPrevQtnNames.size() > 0)
 		{
 			// Enable the button.
 			prevQtnAddBtn.setEnabled(true);
-					
+
+
 		}else
 		{
 			// Do nothing.
 		}
 
 
+
+
 		// -- rightTopPanel (end) -- //
 
 
+
+
 		// -- rightBottomPanel -- //
+
+
 
 
 		rightBottomPanel = new Composite(rightPanel, SWT.BORDER);
 		rightBottomPanel.setBackground(SWTResourceManager.getColor(211, 211, 211));
 		rightBottomPanel.setLayout(new GridLayout(3, false));
 		rightBottomPanel.setLayoutData(new GridData(500, 200));
+
+
 
 
 		qtnListLbl = new Label(rightBottomPanel, SWT.HORIZONTAL);
@@ -571,6 +760,8 @@ public class EditQ{
 		qtnListLbl.setLayoutData(gdRightBottom1);
 
 
+
+
 		qtnList = new List(rightBottomPanel, SWT.SINGLE | SWT.BORDER);
 		//String qtndata[] = {"Do you like beef", "Are you a veggie?", "Why are you here?", "Is the NHS helpful?", "Does this work?"};
 		//qtnList.setItems(prevQtndata);
@@ -581,10 +772,14 @@ public class EditQ{
 		qtnList.setLayoutData(gdRightBottom2);
 
 
+
+
 		editQtnBtn = new Button(rightBottomPanel, SWT.PUSH);
 		editQtnBtn.setEnabled(false);
 		editQtnBtn.addSelectionListener(new EditQtnEvents());
 		editQtnBtn.setText("Edit Question");
+
+
 
 
 		applyQtnBtn = new Button(rightBottomPanel, SWT.PUSH);
@@ -593,10 +788,14 @@ public class EditQ{
 		applyQtnBtn.setText("Apply Changes");
 
 
+
+
 		deleteQtnBtn = new Button(rightBottomPanel, SWT.PUSH);
 		deleteQtnBtn.setEnabled(false);
 		deleteQtnBtn.addSelectionListener(new EditQtnEvents());
 		deleteQtnBtn.setText("Delete Question");
+
+
 
 
 		// -- rightBottomPanel (end) -- //
@@ -604,10 +803,18 @@ public class EditQ{
 
 
 
+
+
+
+
 		// -- End of code for rightPanel -- //
 
 
+
+
 		// -- Code for bottomPanel -- //
+
+
 
 
 		/*bottomPanel = new Composite(shell, SWT.BORDER);
@@ -617,15 +824,20 @@ public class EditQ{
 		bottomPanel.setLayoutData(gd1);*/
 
 
+
+
 		// -- end of code for 'bottomPanel -- //
-		
+
+
 		// -- I could test something here -- //
-		
+
+
 		if(EditQ.questionnaireName.isEmpty())
 		{
 			// Do nothing.
 			System.out.println("No questionnaire has been selected");
-			
+
+
 		}else
 		{
 			System.out.println("A questionnaire has been selected from the 'Load a Questionnaire' Window");
@@ -633,16 +845,19 @@ public class EditQ{
 			EditQ.addQtnToListBtn.setEnabled(true);
 			// Debug purposes - That works aha.
 			System.out.println("'" + EditQ.questionnaireName + "' was selected. the ID is: " + EditQ.questionnaireID);
-			
+
+
 			// Query :)
 			query = "SELECT question_name, question_type, possible_answers FROM Questions WHERE question_id=" + EditQ.questionnaireID + ";";
+
 
 			// Empty the ArrayLists.
 			EditQtnEvents.arrayQuestionNames = new ArrayList<String>();
 			EditQtnEvents.arrayQuestionType = new ArrayList<String>();
 			EditQtnEvents.arrayAnswers = new ArrayList<String>();
 			// So far so good...
-			
+
+
 			try
 			{
 				// This is needed to set up the SQLite Driver, and also
@@ -654,7 +869,8 @@ public class EditQ{
 				statement = connectToDB.createStatement();
 				// Store the results.
 				ResultSet rs = statement.executeQuery(query);
-				
+
+
 				// Loop through each row...
 				while(rs.next())
 				{
@@ -665,33 +881,43 @@ public class EditQ{
 					// Rerieve the String of answers for each question.
 					EditQtnEvents.arrayAnswers.add(rs.getString("possible_answers"));
 				}
-				
+
+
 				System.out.println("The array of questions obtained from the questionnaire: " + EditQtnEvents.arrayQuestionNames);
-				
+
+
 				String Qtns[] = {};
 				// Returns an array with the type according to the type of array passed in. In this case, a String.
 				Qtns = EditQtnEvents.arrayQuestionNames.toArray(Qtns);
 				// Load the Questions from the database onto the 'qtnList'.
 				qtnList.setItems(Qtns);
 
-				
+
+
+
 				// Set it to automatically select the first question - I will get back to this... I never did.
 				EditQ.qtnList.select(0);
-				
+
+
 				// Enable 'editQtnBtn', 'applyQtnBtn', and 'deleteQtnBtn'
 				EditQ.editQtnBtn.setEnabled(true);
 				//EditQ.applyQtnBtn.setEnabled(true);
 				EditQ.deleteQtnBtn.setEnabled(true);
-				
+
+
 				// Enable 'updateBtn'
 				EditQ.updateBtn.setEnabled(true);
-				
+
+
 				// Set the 'titleInput' to the title of the questionnaire selected from the FileDialog. 
 				EditQ.titleInput.setText(questionnaireName);	
-				
-				
+
+
+
+
 				// Everything before this comment works... aha.
-				
+
+
 			}catch(SQLException sqle)
 			{
 				sqle.printStackTrace();
@@ -700,23 +926,30 @@ public class EditQ{
 			{
 				cnfe.printStackTrace();
 			}
-			
+
+
 		}
-		
+
+
 		// -- End of test... the test succeeded -- //
-		
+
+
 		// -- I need to fix a bug that prevents the user from selecting a row after filtering.!!!! - Sort of fixed but, tons of bugs.
-		
+
+
+
 
 		// Makes the shell active.
 		shell.open();
+
 
 		// While the shell (Window) is opened do the following.
 		while (!shell.isDisposed()) {
 				// Listens for events.
 				if (!display.readAndDispatch())
 						display.sleep();
-			
+
+
 		}
 		// Gets rid of the display events, etc.
 		//display.dispose();	
@@ -725,11 +958,14 @@ public class EditQ{
 			// This shoots out an error for some reason... Ah, the class can't see 'main_menu' from here. 
 			// We need to place these files into one big package so they can see each other.
 			//main_menu = new main_menu(display);
-			
-			
+
+
+
+
 		}
 	}
 
 
-} 
 
+
+} 

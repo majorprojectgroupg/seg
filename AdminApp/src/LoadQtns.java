@@ -3,8 +3,6 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.ArrayList;
-
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
@@ -12,8 +10,10 @@ import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.MouseListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Listener;
+import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.Menu;
@@ -23,67 +23,61 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.TableItem;
+import org.eclipse.wb.swt.SWTResourceManager;
 
 
-public class LoadQtns extends Shell {
+
+
+public class LoadQtns 
+{
 	private Table table;
 	private Text questionnaireInput;
 	private Button loadQtnBtn;
-	
+
+
 	public Connection connectToDB;
 	public Statement statement;
 	public String query;
+	
+	protected static Shell shell;
+
 
 	public EditQ editQ;
-	public static LoadQtns shell;
-	/**
-	 * Launch the application.
-	 * @param args
-	 */
-	public static void main(String args[]) {
-		try {
-			Display display = Display.getDefault();
-			//LoadQtns 
-			shell = new LoadQtns(display);
-			shell.open();
-			shell.layout();
-			shell.setText("Load a Questionnaire");
-			while (!shell.isDisposed()) {
-				if (!display.readAndDispatch()) {
-					display.sleep();
-				}
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
 
-	/**
-	 * Create the shell.
-	 * @param display
-	 */
+
+	
+	
 	public LoadQtns(final Display display) {
-		super(display, SWT.SHELL_TRIM);
+		shell = new Shell(display);
 		
-		
-		
-		table = new Table(this, SWT.BORDER  | SWT.FULL_SELECTION);
-		table.setBounds(87, 89, 609, 214);
+		shell.setBackground(SWTResourceManager.getColor(211, 211, 211));
+
+
+
+	
+
+		table = new Table(shell, SWT.BORDER  | SWT.FULL_SELECTION);
+		table.setBounds(10, 86, 609, 175);
 		table.setHeaderVisible(true);
 		table.setLinesVisible(true);
-		
+
+
 		// -- Add a MouseListener to 'table' -- //
-		
+
+
 		table.addMouseListener(new MouseListener(){
+
 
 			@Override
 			public void mouseDoubleClick(MouseEvent me) {
 				// TODO Auto-generated method stub
-				
+
+
 				// The method will go here or something.
 				// Assigns the values depending on what row was selected.
 				//retrieveInfo();
 			}
+
 
 			@Override
 			public void mouseDown(MouseEvent arg0) {
@@ -92,43 +86,62 @@ public class LoadQtns extends Shell {
 				retrieveInfo();
 			}
 
+
 			@Override
 			public void mouseUp(MouseEvent arg0) {
 				// TODO Auto-generated method stub
 				// Assigns the values depending on what row was selected.
 				//retrieveInfo();
 			}});
-		
+
+
 		// -- End of MouseListener event -- //
-		
+
+
 		TableColumn colQtnID = new TableColumn(table, SWT.CENTER);
 		colQtnID.setWidth(154);
 		colQtnID.setText("Questionnaire ID");
-		
+
+
 		TableColumn colQtnName = new TableColumn(table, SWT.CENTER);
-		colQtnName.setWidth(453);
+		colQtnName.setWidth(451);
 		colQtnName.setText("Name of the Questionnaire");
-		
-		Menu menu = new Menu(this, SWT.BAR);
-		setMenuBar(menu);
-		
+
+
+		Menu menu = new Menu(shell, SWT.BAR);
+		shell.setMenuBar(menu);
+
+
 		MenuItem mntmFile = new MenuItem(menu, SWT.CASCADE);
 		mntmFile.setEnabled(false);
 		mntmFile.setText("File");
-		
+
+
 		Menu menu_1 = new Menu(mntmFile);
 		mntmFile.setMenu(menu_1);
-		
+
+
 		MenuItem mntmMainMenu = new MenuItem(menu_1, SWT.NONE);
+		mntmMainMenu.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				shell.dispose();
+				new main_menu(display);
+			}
+		});
 		mntmMainMenu.setText("Main Menu");
-		
-		Label lblSearchQuestionnaires = new Label(this, SWT.NONE);
-		lblSearchQuestionnaires.setBounds(87, 46, 134, 26);
+
+
+		Label lblSearchQuestionnaires = new Label(shell, SWT.NONE);
+		lblSearchQuestionnaires.setBackground(SWTResourceManager.getColor(211, 211, 211));
+		lblSearchQuestionnaires.setBounds(56, 43, 134, 26);
 		lblSearchQuestionnaires.setText("Search Questionnaires:");
-		
-		questionnaireInput = new Text(this, SWT.BORDER);
-		questionnaireInput.setBounds(234, 46, 462, 26);
+
+
+		questionnaireInput = new Text(shell, SWT.BORDER);
+		questionnaireInput.setBounds(196, 40, 321, 26);
 		questionnaireInput.addModifyListener(new ModifyListener(){
+
 
 			@Override
 			public void modifyText(ModifyEvent me)
@@ -148,92 +161,124 @@ public class LoadQtns extends Shell {
 					loadQuestionnaires(query);
 					//
 				}
-				
+
+
 			}});
-		
-		
-		loadQtnBtn = new Button(this, SWT.NONE);
-		loadQtnBtn.setBounds(87, 322, 144, 28);
+
+
+
+
+		loadQtnBtn = new Button(shell, SWT.NONE);
+		loadQtnBtn.setBounds(248, 278, 144, 28);
 		loadQtnBtn.setText("Load Question");
 		loadQtnBtn.setEnabled(false);
-		
-		Button btnMainMenu = new Button(this, SWT.NONE);
-		btnMainMenu.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent arg0) {
-				
-				// Open the load questionnaire window.
-					shell.dispose();
-					// For some reason this does not work.
-					main_menu main_menu = new main_menu(display);
-				
-				
-			}
-		});
-		btnMainMenu.setBounds(237, 322, 116, 28);
-		btnMainMenu.setText("Main Menu");
-		
+
+
 		//loadQtnBtn.addSelectionListener();
-		
+
+
 		createContents();
-		
+
+
 		// I shall come back to this in a minute.
 		// Populate the tables when the window is initially opened.
 		query = "SELECT Questionnaire_id, Questionnaire_name FROM Questionnaires;";
 		loadQuestionnaires(query);
-		
+
+
 		// Load event lulz.
 		loadQtnBtn.addSelectionListener(new SelectionAdapter(){
 			public void widgetSelected(SelectionEvent se)
 			{
 				// This part I shall finish off another time !
 				//dispose();
-				
+
+
 				// Automatically selected the first item in the table 
 				retrieveInfo();
-				
+
+
 				if(EditQ.questionnaireName.isEmpty())
 				{
 					// Do nothing.
+					
 					System.out.println("No questionnaire has been selected");
+					
+					MessageBox sql_message = new MessageBox(shell,SWT.ICON_WARNING |SWT.OK);
+					sql_message.setText("Alert!");
+					sql_message.setMessage("No questionnaire has been selected");
+					sql_message.open();
+					
+					
 				}else
 				{
-					
+
+
 					System.out.println("Selected a Questionnaire");
 					// Editing the loaded questionnaire.
-					
+
+
 					editQ = new EditQ(display);
-					
+
+
 					//EditQ.qtnInput.setText("I made it");
-					
-					
-					
+
+
+
+
+
+
 				}
-				
-				
+
+
+
+
 				// -- Pasted code goes here aha -- //
-				
-				
+
+
+
+
 			}
 		});
-		
+
+
 		// Call main lol
-		
-		
+
+
+
+
 		// ----
+		shell.addListener(SWT.Close, new Listener() {
+		      public void handleEvent(Event event) {
+		      shell.dispose();
+		      System.out.println("i am using exit button patient");
+		      new main_menu(display);
+		    
+		      }
+		    });
 		
+		shell.open();
+		shell.layout();
+		while (!shell.isDisposed()) {
+			if (!display.readAndDispatch()) {
+				display.sleep();
+			}
+		}
+
 	}
+
 
 	/**
 	 * Create contents of the shell.
 	 */
 	protected void createContents() {
-		setText("SWT Application");
-		setSize(783, 427);
+		shell.setText("SWT Application");
+	shell.setSize(648, 398);
+
 
 	}
 
-	@Override
+
 	protected void checkSubclass() {
 		// Disable the check that prevents subclassing of SWT components
 	}
@@ -244,10 +289,13 @@ public class LoadQtns extends Shell {
 				{
 					// Clear the table.
 					table.removeAll();
-					
+
+
 					//String query = "";
-					
-					
+
+
+
+
 					// This is needed to set up the SQLite Driver, and also
 					// WE MUST ALSO PROVIDE THE 'sqlite-jdbc.jar' file before we submit it.
 					Class.forName("org.sqlite.JDBC");
@@ -255,11 +303,14 @@ public class LoadQtns extends Shell {
 					connectToDB = DriverManager.getConnection("jdbc:sqlite:./database.sqlite");
 					// Queries will be executed from this instance.
 					statement = connectToDB.createStatement();
-					
+
+
 					ResultSet rs = statement.executeQuery(query);
-					
+
+
 					int count = 0;
-					
+
+
 					while(rs.next())
 					{
 						TableItem tableRow = new TableItem(table, SWT.NONE, count++);
@@ -267,15 +318,18 @@ public class LoadQtns extends Shell {
 						tableRow.setText(columnValues);
 						//colQtnID.setText(count++, rs.getString("Questionnaire_id"));			
 						//colQtnName.setText(count++, rs.getString("Questionnaire_name"));
-						
+
+
 					}
-					
+
+
 					// Automatically selected the first item in the table - I need to come back to this section.
 					if(table.getItemCount() <= 0)
 					{
 						// If the LIKE clause does not return any results, do nothing. Otherwise...
 						loadQtnBtn.setEnabled(false);
-						
+
+
 					}else
 					{
 						// Automatically selected the first item in the table 
@@ -283,9 +337,12 @@ public class LoadQtns extends Shell {
 						// Enable the load button.
 						loadQtnBtn.setEnabled(true);
 					}
-					
-					
-					
+
+
+
+
+
+
 				}catch(SQLException sqle)
 				{
 					sqle.printStackTrace();
@@ -294,25 +351,31 @@ public class LoadQtns extends Shell {
 				{
 					cnfe.printStackTrace();
 				}
-			
+
+
 	}
 	public void retrieveInfo()
 	{
 		// Enable the button.
 		loadQtnBtn.setEnabled(true);
-		
+
+
 		int indexOfRow = table.getSelectionIndex();
-		
+
+
 		System.out.println("TableItem Selected: ");
-		
+
+
 		// Debug purposes.
 		System.out.println(table.getItems()[indexOfRow].getText(0) + " and the name of the question is  " + table.getItems()[indexOfRow].getText(1));
-		
+
+
 		// Store the ID of the Questionnaire
 		EditQ.questionnaireID = Integer.parseInt(table.getItems()[indexOfRow].getText(0));
 		// Store the Questionnaire Name
 		EditQ.questionnaireName = table.getItems()[indexOfRow].getText(1);
-		
+
+
 		// Store the Location of the selected (json) Questionnaire 
 		try
 		{
@@ -325,21 +388,28 @@ public class LoadQtns extends Shell {
 			statement = connectToDB.createStatement();
 			// Query that we will run.
 			query = "SELECT Questionnaire_location FROM Questionnaires WHERE Questionnaire_id=" + EditQ.questionnaireID + ";";
-			
+
+
 			ResultSet rs = statement.executeQuery(query);
-			
+
+
 			while(rs.next())
 			{
 				// Grab the location and store it for later use.
 				EditQ.questionnaireLocation = rs.getString("Questionnaire_location");
 			}
-			
+
+
 			// Debug purposes. So far so good. :)
 			System.out.println("Location of selected questionnaire: " + EditQ.questionnaireLocation);
-			
-			
-			
-			
+
+
+
+
+
+
+
+
 		}catch(SQLException sqle)
 		{
 			sqle.printStackTrace();
@@ -350,3 +420,4 @@ public class LoadQtns extends Shell {
 		}
 	}
 }
+

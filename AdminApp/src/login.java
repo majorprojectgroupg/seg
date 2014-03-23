@@ -6,18 +6,14 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Date;
 
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.events.GestureListener;
-import org.eclipse.swt.events.GestureEvent;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.wb.swt.SWTResourceManager;
@@ -25,7 +21,7 @@ import org.eclipse.wb.swt.SWTResourceManager;
 
 public class login {
 
-	protected Shell shell;
+	protected static Shell shell;
 	private Text txtusername;
 	private Text txtpassword;
 	Connection sqlitecon= null;
@@ -35,9 +31,9 @@ public class login {
 	PreparedStatement sqlstatement=null;
 	Statement logstate;
 	public static String ulevel; // to store the userlevel globally so other class can access the value
-	private JPanel panel;
-	
-public static Display display = Display.getDefault();
+
+	static int logoutcount;
+public static Display display = new Display();
 	/**
 	 * Launch the application.
 	 * @param args
@@ -65,9 +61,9 @@ public static Display display = Display.getDefault();
 			}
 			
 		}
-		if(shell.isDisposed()){
-			display.dispose();
-		}
+		
+	
+		display.dispose();
 	}
 
 	/**
@@ -124,7 +120,13 @@ public static Display display = Display.getDefault();
 
 						if(active_status.contains("n")){// if active = n then the account has been disabled 
 
-							JOptionPane.showMessageDialog(null, "Your account has been Disabled Please contact administrator","Warning", JOptionPane.WARNING_MESSAGE);
+						//	JOptionPane.showMessageDialog(null, "Your account has been Disabled Please contact administrator","Warning", JOptionPane.WARNING_MESSAGE);
+							MessageBox disable_message = new MessageBox(shell,SWT.ICON_INFORMATION |SWT.OK);
+							disable_message.setText("Info");
+							disable_message.setMessage("Your account has been Disabled Please contact administrator");
+							disable_message.open();
+							
+							
 							sqlresult.close();
 							sqlitecon.close();
 						}
@@ -137,18 +139,24 @@ public static Display display = Display.getDefault();
 									logstate.close();
 									sqlitecon.close();
 									sqlresult.close();
-									
+
 									shell.setVisible(false);
-									main_menu main_menu = new main_menu(display);
+									txtpassword.setText("");
+									txtusername.setText("");
 									System.out.println("hello");
+								 new main_menu(display);
+									
 
 						
 						}
 					}
 
 					else{// when the username and password are incorrect
-						JOptionPane.showMessageDialog(null, "Make sure your username and password are correct","Alert", JOptionPane.WARNING_MESSAGE);
-				
+						//JOptionPane.showMessageDialog(null, "Make sure your username and password are correct","Alert", JOptionPane.WARNING_MESSAGE);
+						MessageBox incorrect_message = new MessageBox(shell,SWT.ICON_WARNING |SWT.OK);
+						incorrect_message.setText("Incorrect Details");
+						incorrect_message.setMessage("Make sure your username and password are correct");
+						incorrect_message.open();
 					}
 
 
@@ -157,8 +165,12 @@ public static Display display = Display.getDefault();
 
 					ex.printStackTrace();
 				} catch (ClassNotFoundException ex1) {// error message incase the program fails to connect to the database
-					JOptionPane.showMessageDialog(null, "connection to the database failed","Warning", JOptionPane.ERROR_MESSAGE);
+					//JOptionPane.showMessageDialog(null, "connection to the database failed","Warning", JOptionPane.ERROR_MESSAGE);
 					ex1.printStackTrace();
+					MessageBox sql_message = new MessageBox(shell,SWT.ERROR |SWT.OK);
+					sql_message.setText("Connection Lost");
+					sql_message.setMessage("Connection to the database failed");
+					sql_message.open();
 
 				}
 

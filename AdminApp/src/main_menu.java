@@ -1,14 +1,16 @@
-import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Button;
-import org.eclipse.wb.swt.SWTResourceManager;
-import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Listener;
+import org.eclipse.swt.widgets.Menu;
+import org.eclipse.swt.widgets.MenuItem;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.wb.swt.SWTResourceManager;
 
 
 public class main_menu {
@@ -18,6 +20,7 @@ public class main_menu {
 	static Button btnAdminTools,btnEditQuestn ,btnCreateQuestn;
 	static Label lblAdminTools;
 
+	Boolean logout= false;
 	/**
 	 * Create contents of the window.
 	 */
@@ -26,6 +29,17 @@ public class main_menu {
 		shell.setBackground(SWTResourceManager.getColor(211, 211, 211));
 		shell.setSize(547, 438);
 		shell.setText("SWT Application");
+		
+		shell.addListener(SWT.Close, new Listener() {
+		      public void handleEvent(Event event) {
+		    	  String updatelog= "INSERT INTO log VALUES ('"+login.username+"','"+login.date_timestamp+"','user logged off the system')";
+					queries.delete_add_update(updatelog);
+		      display.dispose();
+		      
+		      
+		      System.out.println("i exited");
+		      }
+		    });
 		
 		Composite composite = new Composite(shell, SWT.NONE);
 		composite.setBackground(SWTResourceManager.getColor(211, 211, 211));
@@ -69,7 +83,7 @@ public class main_menu {
 		btnCreateQuestn.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				
+				shell.dispose();
 				new CreateQ(display);
 			}
 		});
@@ -82,30 +96,14 @@ public class main_menu {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				shell.dispose();
-	
-							
-				// --- Open the Load Questionnaire Window -- //
-				try {
-					Display display = Display.getDefault();
-					LoadQtns shell = new LoadQtns(display);
-					shell.open();
-					shell.layout();
-					shell.setText("Load a Questionnaire");
-					while (!shell.isDisposed()) {
-						if (!display.readAndDispatch()) {
-							display.sleep();
-						}
-					}
-				} catch (Exception exception) {
-					exception.printStackTrace();
-				}
-				// --- END -- //
+
+				new LoadQtns(display);
 				
-				// New code starts here now... muwhaha.
-				//new LoadQtns(display);
-				
+					
 			}
 		});
+
+
 	
 		btnEditQuestn.setImage(SWTResourceManager.getImage("./btn images/edit_quest.gif"));
 		btnEditQuestn.setBounds(194, 24, 118, 60);
@@ -133,6 +131,13 @@ public class main_menu {
 		lblAdminTools.setBounds(224, 297, 79, 15);
 		
 		Button btnViewResult = new Button(composite, SWT.NONE);
+		btnViewResult.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				shell.dispose();
+				new view_edit_result(display);
+			}
+		});
 		btnViewResult.setImage(SWTResourceManager.getImage("./btn images/view-results.gif"));
 		btnViewResult.setBounds(346, 24, 118, 60);
 		
@@ -167,10 +172,12 @@ public class main_menu {
 				
 				String updatelog= "INSERT INTO log VALUES ('"+login.username+"','"+login.date_timestamp+"','user logged off the system')";
 				queries.delete_add_update(updatelog);
+			
 				shell.dispose();
-				login loginframe= new login();
-				loginframe.open();
 				
+				login.shell.setVisible(true);
+				login.shell.forceActive();
+				System.out.println("did press logout");//debugging
 			}
 		});
 		mntmLogOut.setText("Log out");
@@ -185,23 +192,39 @@ public class main_menu {
 		btnTimstamp.setBounds(357, 0, 164, 23);
 	
 		System.out.println(login.ulevel+"userlevel");
+		
 		if (login.ulevel.contains("Admin")){
 			btnAdminTools.setVisible(true);
 			
 			btnEditQuestn.setEnabled(true);
-			btnCreateQuestn.setEnabled(true);
+			btnAdminTools.setVisible(true);
 		}
 			else if(login.ulevel.contains("Doctor")){
 				btnEditQuestn.setEnabled(true);
 				btnCreateQuestn.setEnabled(true);
-				btnAdminTools.setEnabled(false);
+				btnAdminTools.setVisible(false);
+				lblAdminTools.setVisible(false);
+				shell.setSize(547, 380);
+				
 			
 		}else{
-			btnAdminTools.setEnabled(false);
+			btnAdminTools.setVisible(false);
+			lblAdminTools.setVisible(false);
+			lblCreateQuestionnaire.setVisible(false);
+			lblEditQuestionnaire.setVisible(false);
+			btnEditQuestn.setVisible(false);
+			btnCreateQuestn.setVisible(false);
 			
-			btnEditQuestn.setEnabled(false);
-			btnCreateQuestn.setEnabled(false);
-			
+			btnImport.setBounds(57, 135, 118, 60);
+			btnTransfer.setBounds(215, 23, 118, 60);
+			btnPatient.setBounds(215, 135, 118, 60);
+			btnViewResult.setBounds(57, 23, 118, 60);
+			lblImportFromTablet.setBounds(67, 201, 110, 15);
+			lblPatientTable.setBounds(238, 201, 79, 15);
+			lblVieweditResults.setBounds(67, 89, 102, 15);
+			lblTransferToTablet.setBounds(225, 89, 110, 15);
+			composite.setBounds(53, 33, 385, 244);
+			shell.setSize(508, 359);
 		}
 	
 		
@@ -211,12 +234,9 @@ public class main_menu {
 			if (!display.readAndDispatch()) {
 				display.sleep();
 			}
-			if (shell.isDisposed()){
-				display.dispose();
-				String updatelog= "INSERT INTO log VALUES ('"+login.username+"','"+login.date_timestamp+"','user logged off the system')";
-				queries.delete_add_update(updatelog);
-			}
+			
 		}
-
+		
+		
 	}
 }

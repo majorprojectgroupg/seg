@@ -3,14 +3,10 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Table;
-import org.eclipse.swt.widgets.Composite;
 import org.eclipse.wb.swt.SWTResourceManager;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Menu;
-import org.eclipse.swt.widgets.MenuItem;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.widgets.Group;
+import org.eclipse.swt.widgets.TableColumn;
 
 
 public class activity_log {
@@ -46,6 +42,15 @@ public class activity_log {
 		logtable.setHeaderVisible(true);
 		logtable.setBounds(0, 17, 522, 349);
 		
+		TableColumn tblclmnUserName = new TableColumn(logtable, SWT.NONE);
+		tblclmnUserName.setText("User Name");
+		
+		TableColumn tblclmnDateTime = new TableColumn(logtable, SWT.NONE);
+		tblclmnDateTime.setText("Date / Time");
+		
+		TableColumn tblclmnDescription = new TableColumn(logtable, SWT.NONE);
+		tblclmnDescription.setText("Description");
+		
 		
 		
 		if(users.individual_log==true){
@@ -58,7 +63,9 @@ public class activity_log {
 			
 		}
 		
-	
+		tblclmnDescription.pack();
+		tblclmnUserName.pack();
+		tblclmnDateTime.pack();
 		
 		shell.open();
 
@@ -71,8 +78,9 @@ public class activity_log {
 								display.sleep();
 				}
 				// Gets rid of the display events, etc.
-			shell.dispose();
+			
 			if(shell.isDisposed()){
+				shell.dispose();
 				//users.individual_log.
 			}
 				

@@ -1,6 +1,6 @@
 {
 "questionnaire" : [
-{ "question":"Can you tolerate wheat?", "type":"SingleChoice", "answers":"Yes@No"},
-{ "question":"Do you like wheat?", "type":"SingleChoice", "answers":"Not much@So much@It is my life"}
+{ "question":"What is your name?", "type":"UserInputChoice", "answers":""},
+{ "question":"Where do you live?", "type":"SingleChoice", "answers":"Paris@London@Barcelona"}
 ]
 }

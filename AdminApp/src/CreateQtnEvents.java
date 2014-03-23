@@ -2,6 +2,7 @@ import java.util.ArrayList;
 
 
 import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.SWT;
 
 
@@ -42,7 +43,7 @@ class CreateQtnEvents implements SelectionListener, KeyListener, ModifyListener
 
 	public static Connection connectToDB;
 	public static Statement statement;
-
+	private static 	MessageBox wmessages, succ_message;
 
 
 
@@ -52,8 +53,8 @@ class CreateQtnEvents implements SelectionListener, KeyListener, ModifyListener
 	}
 	public void widgetSelected(SelectionEvent e)
 	{
-
-
+		wmessages = new MessageBox(CreateQ.shell,SWT.ICON_WARNING|SWT.OK);
+		succ_message = new MessageBox(CreateQ.shell,SWT.ICON_INFORMATION|SWT.OK);
 		if(e.getSource() == CreateQ.singleChoiceBtn)
 		{
 			// Enable the 'answerInput' field.
@@ -329,7 +330,10 @@ class CreateQtnEvents implements SelectionListener, KeyListener, ModifyListener
 					// Debug purposes.
 					System.out.println(exportString);
 					System.out.println("The Questionnaire has been exported:\n" + jsonString);
-
+					
+					succ_message.setMessage("The Questionnaire has been saved successfully");
+					succ_message.setText("Success!");
+					succ_message.open();
 
 					// So far so good - I NEED TO MAKE IT SO THAT IT CREATES THE JSON FILE TOO ! ;D
 
@@ -393,6 +397,10 @@ class CreateQtnEvents implements SelectionListener, KeyListener, ModifyListener
 				{
 					// Debug purposes.
 					System.out.println("Specify a title for the questionnaire before exporting the file");
+					wmessages.setMessage("Specify a title for the questionnaire before exporting the file");
+					wmessages.setText("Alert!");
+					wmessages.open();
+			
 				}		
 
 
@@ -598,7 +606,10 @@ class CreateQtnEvents implements SelectionListener, KeyListener, ModifyListener
 					arrayQuestionType.remove(selectedQtnIndex);
 					// Delete the String of answers from 'arrayAnswers'
 					arrayAnswers.remove(selectedQtnIndex);
-
+					
+					succ_message.setMessage("The Selected question has been deleted from the questionnaire");
+					succ_message.setText("Alert!");
+					succ_message.open();
 
 					if(CreateQ.qtnList.getItemCount() < 1)
 					{
@@ -644,6 +655,9 @@ class CreateQtnEvents implements SelectionListener, KeyListener, ModifyListener
 
 	public void keyPressed(KeyEvent e)
 	{
+		wmessages = new MessageBox(CreateQ.shell,SWT.ICON_WARNING|SWT.OK);
+		succ_message = new MessageBox(CreateQ.shell,SWT.ICON_INFORMATION|SWT.OK);
+		
 		if(e.getSource() == CreateQ.answerInput)
 		{
 			// If the carriage return key is pressed - i.e. the ENTER key...
@@ -702,6 +716,8 @@ class CreateQtnEvents implements SelectionListener, KeyListener, ModifyListener
 
 	public void modifyText(ModifyEvent e)
 	{
+		wmessages = new MessageBox(CreateQ.shell,SWT.ICON_WARNING|SWT.OK);
+		succ_message = new MessageBox(CreateQ.shell,SWT.ICON_INFORMATION|SWT.OK);
 		// 'searchInput' -- //
 
 
@@ -744,6 +760,9 @@ class CreateQtnEvents implements SelectionListener, KeyListener, ModifyListener
 	// Custom methods
 	public void maintainList(Button btn)
 	{
+		wmessages = new MessageBox(CreateQ.shell,SWT.ICON_WARNING|SWT.OK);
+		succ_message = new MessageBox(CreateQ.shell,SWT.ICON_INFORMATION|SWT.OK);
+		
 		// Temp variable that will hold the question name that was inputted.
 		String questionName = "";
 		// A temp variable that will hold the type of question selected.
@@ -972,16 +991,25 @@ class CreateQtnEvents implements SelectionListener, KeyListener, ModifyListener
 					{
 						// if 'answerList' - A dialog box should pop up if there are no answers supplied!
 						System.out.println("At least input an answer!");
+						wmessages.setMessage("Please provide answers for the question");
+						wmessages.setText("Alert!");
+						wmessages.open();
 					}						
 			}else
 			{
 				// if 'qtnInput' - A dialog box should pop up if the text is empty!
 				System.out.println("Type in a Question!");
+				wmessages.setMessage("Please Type in a Question");
+				wmessages.setText("Alert!");
+				wmessages.open();
 			}
 		}else
 		{
 			// Debug purposes.
 			System.out.println("Specify a title for the questionnaire");
+			wmessages.setMessage("Please specify a title for the questionnaire");
+			wmessages.setText("Alert!");
+			wmessages.open();
 		}
 
 
@@ -1065,6 +1093,8 @@ class CreateQtnEvents implements SelectionListener, KeyListener, ModifyListener
 
 	public void addPreviousQuestion()
 	{
+		wmessages = new MessageBox(CreateQ.shell,SWT.ICON_WARNING|SWT.OK);
+		succ_message = new MessageBox(CreateQ.shell,SWT.ICON_INFORMATION|SWT.OK);
 		// Now, it is time to test this out...
 
 
@@ -1115,6 +1145,9 @@ class CreateQtnEvents implements SelectionListener, KeyListener, ModifyListener
 		{
 			// Debug purposes.
 			System.out.println("There are no questions currently stored in the database.");
+			wmessages.setMessage("There are no questions currently stored in the database");
+			wmessages.setText("Alert!");
+			wmessages.open();
 		}
 
 

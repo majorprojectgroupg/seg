@@ -15,8 +15,12 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Listener;
+import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.Menu;
@@ -27,32 +31,35 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
-import org.eclipse.swt.events.KeyAdapter;
-import org.eclipse.swt.events.KeyEvent;
+import org.eclipse.swt.events.ModifyListener;
+import org.eclipse.swt.events.ModifyEvent;
 
 
 public class transfer {
 
-	protected Shell shell;
+	protected static Shell shell;
 	private static Table table_questionnaire;
 	private static Table table_patient;
-	private Text filter_patient;
-	private Text txt_quest_name;
-	private Text txt_questID;
-	private Text txt_pname;
-	private Text txt_pid;
+	static Text filter_patient;
+	static Text txt_quest_name;
+	static Text txt_questID;
+	static Text txt_pname;
+	static Text txt_pid;
 
 	private static Connection sqlconnection = null;
 	private static ResultSet sqlresult=null;
 	private static Statement sqlstatement=null;
-	private static String questionnaire_location;
-	private static String dob;
-	private static String fname;
-	private static String lname;
-	private static String executepatient = "SELECT patid AS Patient_ID, fname AS First_Name , lname AS Last_Name,dob AS DOB, sex AS Sex,homenumber AS Home_Telephone, mobile AS Mobile, email AS Email_address, address1 AS Address_line_1 ,address2 AS Address_line_2 , address3 AS Address_line_3 ,city AS City, county AS County,postcode AS PostCode FROM patients"; // used by other methods
+	 static String questionnaire_location;
+	static String dob;
+	static String fname;
+	static String lname;
+	private String executepatient = "SELECT patid , fname , lname ,dob , sex ,homenumber , mobile, email , address1  ,address2  , address3 ,city AS City, county,postcode FROM patients"; // used by other methods
+
 	private static String executequestionnaire = "SELECT Questionnaire_id, Questionnaire_name,Questionnaire_location FROM Questionnaires";
 	static sql_queries queries = new sql_queries();
-	private Text txt_filterquest;
+	private static Text txt_filterquest;
+	private static 	MessageBox messages;
+	
 
 
 	/**
@@ -193,11 +200,8 @@ public class transfer {
 		lblSearchForPatient.setBounds(70, 13, 128, 15);
 
 		filter_patient = new Text(composite_1, SWT.BORDER);
-		filter_patient.addKeyListener(new KeyAdapter() {
-
-			@Override
-			public void keyReleased(KeyEvent e) {
-
+		filter_patient.addModifyListener(new ModifyListener() {
+			public void modifyText(ModifyEvent arg0) {
 				String filtertxt =filter_patient.getText().toString();
 
 				if(filtertxt.length()==0){// if filter search is cleared dbtable method is called to display all results
@@ -214,6 +218,7 @@ public class transfer {
 				}
 			}
 		});
+	
 		filter_patient.setBounds(219, 10, 145, 21);
 
 		Menu menu = new Menu(shell, SWT.BAR);
@@ -251,8 +256,8 @@ public class transfer {
 				String updatelog= "INSERT INTO log VALUES ('"+login.username+"','"+login.date_timestamp+"','user logged off the system')";
 				queries.delete_add_update(updatelog);
 				shell.dispose();
-				login loginframe= new login();
-				loginframe.open();
+				login.shell.setVisible(true);
+				login.shell.forceActive();
 				
 				
 			}
@@ -310,108 +315,38 @@ public class transfer {
 		lblPatientId.setText("Patient ID");
 		lblPatientId.setBounds(10, 191, 122, 15);
 
+		messages = new MessageBox(shell, SWT.ICON_WARNING|SWT.OK);
+		
 		Button btn_transfer = new Button(grpSelectionForTransfer, SWT.NONE);
 		btn_transfer.addSelectionListener(new SelectionAdapter() {
+			
+		
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				
 				
+				
 				if(txt_questID.getText().length()==0 && txt_pid.getText().length()==0 ){
-					JOptionPane.showMessageDialog(null, "Please select a patient and a Questionnaire","Warning", JOptionPane.WARNING_MESSAGE);
-					
+					messages.setMessage("Please select a patient and a Questionnaire");
+					messages.setText("Alert!");
+					messages.open();
 					
 				}else if (txt_questID.getText().length()==0){
-					JOptionPane.showMessageDialog(null, "Please select a Questionnaire","Warning", JOptionPane.WARNING_MESSAGE);
+					messages.setMessage("Please select a Questionnaire");
+					messages.setText("Alert!");
+					messages.open();
 				}
 				else if (txt_pid.getText().length()==0){
-					JOptionPane.showMessageDialog(null, "Please select a Patient","Warning", JOptionPane.WARNING_MESSAGE);
+					messages.setMessage("Please select a Patient");
+					messages.setText("Alert!");
+					messages.open();
 				}
-				else{
-				String adbfile="./adb.exe";
-				String outputfile="sdcard/Download/questionnaire.json";
-				String devices = null;
-
-
-				StringBuilder stringbuild = new StringBuilder();
-				BufferedReader data;
-				String readsymbols = null;
-
-
-
-				try {
-					FileReader in = new FileReader(questionnaire_location);
-
-					data = new BufferedReader(in);
-
-					while((readsymbols=data.readLine()) != null)
-					{
-						// Add the current line to the StringBuilder.
-						stringbuild.append(readsymbols);
-
-						// Debug purposes.
-					}
-					data.close();
-				} catch (IOException catchexp) {
-					// TODO Auto-generated catch block
-					catchexp.printStackTrace();
+			
+				else  {
+					
+					queries.tranfersql();
 				}
-
-				System.out.println(stringbuild.toString());
-				String x = stringbuild.toString();
-				String patid=txt_pid.getText().toString();
-
-
-				String additionaldata= ",\"details\": [{ \"patid\":\""+txt_pid.getText()+"\", \"fname\":\""+fname+"\", \"lname\":\""+lname+"\",  \"dob\":\""+dob+"\", \"questionnaire_name\":\""+txt_quest_name.getText().toString()+"\", \"questionmaire_id\":\""+txt_questID.getText().toString()+"\"}] }";
-
-				if(x.endsWith("}")){
-					x= x.substring(0, x.length()-1);
-
-
-					try {
-						String Transferdata = x+additionaldata;
-						File tempfile = new File("./Temp/questionnaire.json");
-
-						FileWriter writer = new FileWriter(tempfile);
-						writer.write(Transferdata);
-						writer.close();
-
-
-						Process process = Runtime.getRuntime().exec(adbfile+" push "+ "./Temp/questionnaire.json"+" "+outputfile);// transfer the file
-
-						BufferedReader breader = new BufferedReader(new InputStreamReader(process.getErrorStream()));  
-						String line;
-
-						while ((line = breader.readLine()) != null) {  
-							devices =line;// to check for error messages
-						}
-						System.out.println(devices);
-
-						if(devices.contains("error")){
-							JOptionPane.showMessageDialog(null, devices,"Warning", JOptionPane.WARNING_MESSAGE);// error message when there is no device detected
-						}
-
-						else{
-							// referencing edituser class to access the update delete method ..
-
-							String InsertQuery ="INSERT INTO Results(Questionnaire_Name,Patient_Name,Status,Questionnaire_ID,Patient_ID, File_Location) VALUES('"+txt_quest_name.getText()+"','"+txt_pname.getText()+"','In Progress','"+txt_questID.getText()+"','"+txt_pid.getText()+"','./results');";
-							queries.delete_add_update(InsertQuery);// sending it to the update_delete method.to execute the query
-							String query2= "INSERT INTO log Values('"+login.username+"','"+login.date_timestamp+"','The User Transfered "+" "+txt_quest_name.getText()+" Questionnaire for the pateient "+txt_pname+" to complete')";
-							
-							cleartxtfields();
-							
-							JOptionPane.showMessageDialog(null, "File was Sucessfully transfered","", JOptionPane.INFORMATION_MESSAGE);// message to alert the uesr that the file has been transfered
-
-						}
-
-
-					} catch (IOException catchexp) {
-						//do stuff with exception
-						catchexp.printStackTrace();
-					}
-
-
-				}
-				}
+				
 			}
 		});
 		btn_transfer.setImage(SWTResourceManager.getImage("./btn images/pctodroid.gif"));
@@ -422,15 +357,10 @@ public class transfer {
 		lblTransfre.setBounds(130, 275, 55, 15);
 		lblTransfre.setText("Transfer");
 
-
-
-
-		queries.db_table(table_questionnaire, executequestionnaire);
-
 		txt_filterquest = new Text(composite, SWT.BORDER);
-		txt_filterquest.addKeyListener(new KeyAdapter() {
-			@Override
-			public void keyReleased(KeyEvent e) {
+		txt_filterquest.addModifyListener(new ModifyListener() {
+			public void modifyText(ModifyEvent arg0) {
+				
 				String filterquest=txt_filterquest.getText().toString();
 
 				if(filterquest.length()==0){// if filter search is cleared dbtable method is called to display all results
@@ -446,11 +376,87 @@ public class transfer {
 
 
 				}
-
 			}
 		});
+		
+		
+
+		shell.addListener(SWT.Close, new Listener() {
+		      public void handleEvent(Event event) {
+		          shell.dispose();
+		          System.out.println("i am using exit button transfer");
+			    	new main_menu(display);
+			    
+		      }
+		    });
+		
 		txt_filterquest.setBounds(228, 10, 145, 21);
+		
+		// Patient table columns
+		
+		TableColumn colm_patid= new TableColumn(table_patient, SWT.NONE);
+		colm_patid.setText("Patient ID");
+		
+		TableColumn colm_fname = new TableColumn(table_patient, SWT.NONE);
+		colm_fname.setText("First Name");
+		
+		TableColumn colm_lname = new TableColumn(table_patient, SWT.NONE);
+		colm_lname.setText("Last Name");
+		
+		TableColumn colm_dob = new TableColumn(table_patient, SWT.NONE);
+		colm_dob.setText("DOB");
+		
+		TableColumn colm_gender = new TableColumn(table_patient, SWT.NONE);
+		colm_gender.setText("Gender");
+		
+		TableColumn colm_homeno = new TableColumn(table_patient, SWT.NONE);
+		colm_homeno.setText("Home Telepone");
+		
+		
+		TableColumn colm_mobile= new TableColumn(table_patient, SWT.NONE);
+		colm_mobile.setText("Mobile Number");
+		
+		TableColumn colm_email = new TableColumn(table_patient, SWT.NONE);
+		colm_email.setText("Email Address");
+		
+		TableColumn colm_add1 = new TableColumn(table_patient, SWT.NONE);
+		colm_add1.setText("Address 1");
+		
+		TableColumn colm_add2 = new TableColumn(table_patient, SWT.NONE);
+		colm_add2.setText("Address 2");
+		
+		TableColumn colm_add3 = new TableColumn(table_patient, SWT.NONE);
+		colm_add3.setText("Address 3");
+		
+		TableColumn colm_city = new TableColumn(table_patient, SWT.NONE);
+		colm_city.setText("City");
+		
+		TableColumn colm_county = new TableColumn(table_patient, SWT.NONE);
+		colm_county.setText("County");
+		// end of patient table columns
+		
+		
+
+		TableColumn tblclmnQuestionnaireId = new TableColumn(table_questionnaire, SWT.NONE);
+		tblclmnQuestionnaireId.setText("Questionnaire ID");
+		
+		TableColumn tblclmnQuestionnaireName = new TableColumn(table_questionnaire, SWT.NONE);
+		tblclmnQuestionnaireName.setText("Questionnaire Name");
+		
+		TableColumn tblclmnQuestionnaireLocation = new TableColumn(table_questionnaire, SWT.NONE);
+		tblclmnQuestionnaireLocation.setText("Questionnaire Location");
+		
+		queries.db_table(table_questionnaire, executequestionnaire);
+		
 		queries.db_table(table_patient, executepatient);
+		
+		for (int i=0; i<table_questionnaire.getColumnCount(); i++) {
+	    	 table_questionnaire.getColumn (i).pack ();
+		        }
+		
+		for (int i=0; i<table_patient.getColumnCount(); i++) {
+	    	 table_patient.getColumn (i).pack ();
+		        }
 		shell.open();
 		shell.layout();
 
@@ -458,14 +464,14 @@ public class transfer {
 			if (!display.readAndDispatch()) {
 				display.sleep();
 			}
-			
-			if(shell.isDisposed()){
-			new main_menu(display);
+		
+		}	    	
+	
+		
+		  
 			}
-		}
-	}
 
-	public void cleartxtfields(){// clearing all text fields
+	public static void cleartxtfields(){// clearing all text fields
 		txt_quest_name.setText("");
 		txt_questID.setText("");
 		txt_pid.setText("");

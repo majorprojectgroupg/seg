@@ -1,8 +1,4 @@
-import java.awt.Color;
 import java.util.ArrayList;
-import java.util.Arrays;
-
-
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Button;
@@ -12,19 +8,13 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.List;
 
 
-import org.eclipse.swt.layout.FillLayout;
-import org.eclipse.swt.layout.RowLayout;
-import org.eclipse.swt.layout.RowData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.SWT;
 
 
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.Statement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import org.eclipse.wb.swt.SWTResourceManager;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
@@ -37,7 +27,7 @@ import org.eclipse.swt.events.SelectionEvent;
 public class CreateQ{
 
 
-	public Shell shell;
+	public static Shell shell;
 	public static Composite leftPanel, leftMainPanel, leftBottomPanel, radioBtnGroup, rightPanel, rightTopPanel, rightBottomPanel, bottomPanel;
 	public static Button singleChoiceBtn, multiChoiceBtn, userInputBtn, dateChoiceBtn, editAnsBtn, deleteAnsBtn, applyAnsBtn, addQtnToListBtn;
 
@@ -576,10 +566,8 @@ public class CreateQ{
 				
 		}
 		// Gets rid of the display events, etc.
-		display.dispose();	
-		if(shell.isDisposed()){
-		new main_menu(display);
-		}
+	
+		shell.dispose();
 	}
 
 

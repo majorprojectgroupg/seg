@@ -1,12 +1,8 @@
-import java.awt.Color;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-
-import javax.swing.BorderFactory;
-import javax.swing.JOptionPane;
 
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
@@ -14,28 +10,32 @@ import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.SWT;
 import org.eclipse.wb.swt.SWTResourceManager;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Listener;
+import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
+import org.eclipse.swt.events.ModifyEvent;
+import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
-import org.eclipse.swt.events.KeyAdapter;
-import org.eclipse.swt.events.KeyEvent;
 
 
 public class patients {
 
-	protected Shell shell;
+	protected static Shell shell;
 	private Table patient_table;
 	public static Text txt_filter, txt_mobile, txt_hmeno,txt_fname,txt_lname,txt_dob,txt_email,txt_patid,txt_county, txt_city,txt_address1,txt_address2,txt_address3,txt_pstcde;
-	private String executestaement = "SELECT patid AS Patient_ID, fname AS First_Name , lname AS Last_Name,dob AS DOB, sex AS Sex,homenumber AS Home_Telephone, mobile AS Mobile, email AS Email_address, address1 AS Address_line_1 ,address2 AS Address_line_2 , address3 AS Address_line_3 ,city AS City, county AS County,postcode AS PostCode FROM patients"; // used by other methods
+	private String executestaement = "SELECT patid , fname , lname ,dob , sex ,homenumber , mobile, email , address1  ,address2  , address3 ,city AS City, county,postcode FROM patients"; // used by other methods
 	private static sql_queries queries = new sql_queries();
 	private static Connection sqlconnection = null;
 	private static ResultSet sqlresult=null;
@@ -43,8 +43,9 @@ public class patients {
 	private static Combo cmbo_sex;
 	private static Button btnAddPatient, btnupdate, btndelete;
 	static Boolean add= false , delete=false , update =false;
-
-	protected patients(final Display display) {
+	private static 	MessageBox message;
+	
+	protected patients( final Display display) {
 		shell = new Shell(display);
 		shell.setBackground(SWTResourceManager.getColor(211, 211, 211));
 		shell.setSize(615, 636);
@@ -67,6 +68,9 @@ public class patients {
 				tableselection();
 			}
 		});
+		
+		message = new MessageBox(shell,SWT.ICON_WARNING |SWT.OK);
+		
 		patient_table.setToolTipText("Double Click to Select");
 		patient_table.setLinesVisible(true);
 		patient_table.setHeaderVisible(true);
@@ -78,9 +82,8 @@ public class patients {
 		label.setBounds(101, 3, 112, 15);
 
 		txt_filter = new Text(composite, SWT.BORDER);
-		txt_filter.addKeyListener(new KeyAdapter() {
-			@Override
-			public void keyReleased(KeyEvent e) {
+		txt_filter.addModifyListener(new ModifyListener() {
+			public void modifyText(ModifyEvent arg0) {
 
 				String filtertxt =txt_filter.getText().toString();
 
@@ -232,7 +235,12 @@ public class patients {
 		grpQuickTools.setFont(SWTResourceManager.getFont("Segoe UI", 9, SWT.BOLD));
 		grpQuickTools.setBackground(SWTResourceManager.getColor(211, 211, 211));
 		grpQuickTools.setText("Quick Tools");
-		grpQuickTools.setBounds(468, 360, 121, 150);
+		System.out.println(login.ulevel.toString());
+		if(login.ulevel.contains("Doctor")){
+			grpQuickTools.setBounds(468, 360, 121, 110);
+		}else{
+			grpQuickTools.setBounds(468, 360, 121, 150);
+		}
 		btnAddPatient = new Button(grpQuickTools, SWT.NONE);
 		btnAddPatient.addSelectionListener(new SelectionAdapter() {
 			@Override
@@ -302,8 +310,11 @@ public class patients {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				if(txt_patid.getText().length()==0){
-					JOptionPane.showMessageDialog(null, "Please select a patient then try again","Alert", JOptionPane.WARNING_MESSAGE);
-				}else{
+					message = new MessageBox(shell,SWT.ICON_ERROR|SWT.OK);
+					message.setText("Alert!");
+					message.setMessage("Please select a patient then try again");
+					message.open();
+						}else{
 				new individual_result(display);
 			}}
 		});
@@ -326,8 +337,9 @@ public class patients {
 				String updatelog= "INSERT INTO log VALUES ('"+login.username+"','"+login.date_timestamp+"','user logged off the system')";
 				queries.delete_add_update(updatelog);
 				shell.dispose();
-				login loginframe= new login();
-				loginframe.open();
+				login.shell.setVisible(true);
+				login.shell.forceActive();
+				System.out.println("did press logout");//debugging
 			}
 		});
 		mntmLogout.setText("Logout");
@@ -335,7 +347,45 @@ public class patients {
 		MenuItem mntmHelp = new MenuItem(menu, SWT.NONE);
 		mntmHelp.setText("Help");
 
-		queries.db_table(patient_table,executestaement );
+		TableColumn colm_patid= new TableColumn(patient_table, SWT.NONE);
+		colm_patid.setText("Patient ID");
+		
+		TableColumn colm_fname = new TableColumn(patient_table, SWT.NONE);
+		colm_fname.setText("First Name");
+		
+		TableColumn colm_lname = new TableColumn(patient_table, SWT.NONE);
+		colm_lname.setText("Last Name");
+		
+		TableColumn colm_dob = new TableColumn(patient_table, SWT.NONE);
+		colm_dob.setText("DOB");
+		
+		TableColumn colm_gender = new TableColumn(patient_table, SWT.NONE);
+		colm_gender.setText("Gender");
+		
+		TableColumn colm_homeno = new TableColumn(patient_table, SWT.NONE);
+		colm_homeno.setText("Home Telepone");
+		
+		
+		TableColumn colm_mobile= new TableColumn(patient_table, SWT.NONE);
+		colm_mobile.setText("Mobile Number");
+		
+		TableColumn colm_email = new TableColumn(patient_table, SWT.NONE);
+		colm_email.setText("Email Address");
+		
+		TableColumn colm_add1 = new TableColumn(patient_table, SWT.NONE);
+		colm_add1.setText("Address 1");
+		
+		TableColumn colm_add2 = new TableColumn(patient_table, SWT.NONE);
+		colm_add2.setText("Address 2");
+		
+		TableColumn colm_add3 = new TableColumn(patient_table, SWT.NONE);
+		colm_add3.setText("Address 3");
+		
+		TableColumn colm_city = new TableColumn(patient_table, SWT.NONE);
+		colm_city.setText("City");
+		
+		TableColumn colm_county = new TableColumn(patient_table, SWT.NONE);
+		colm_county.setText("County");
 		
 		Label label_1 = new Label(shell, SWT.NONE);
 		label_1.setText("09/03/2014 11:06:57 PM");
@@ -349,18 +399,31 @@ public class patients {
 		}else{
 			btndelete.setEnabled(false);
 			btndelete.setVisible(false);
+			grpQuickTools.setBounds(468, 360, 121, 110);
+			
 		}
 		
-		
+		shell.addListener(SWT.Close, new Listener() {
+		      public void handleEvent(Event event) {
+		      shell.dispose();
+		      System.out.println("i am using exit button patient");
+		      new main_menu(display);
+		    
+		      }
+		    });
+
+
+		queries.db_table(patient_table,executestaement );
+		for (int i=0; i<patient_table.getColumnCount(); i++) {
+	    	 patient_table.getColumn (i).pack ();
+		        }
 		shell.open();
 		shell.layout();
 		while (!shell.isDisposed()) {
 			if (!display.readAndDispatch()) {
 				display.sleep();
 			}
-			if(shell.isDisposed()){
-			 new main_menu(display);
-			}
+
 		}
 	}
 	public void tableselection(){// selecting record from the table
@@ -436,16 +499,20 @@ public class patients {
 		int homenumber=txt_hmeno.getText().length();
 		int dob = txt_dob.getText().length();
 		int cmboselect= cmbo_sex.getSelectionIndex();
-
+		message = new MessageBox(shell,SWT.ICON_WARNING |SWT.OK);
 
 		if(fname==0|| lname==0|| address1==0|| city==0|| postcde==0|| dob==0|| homenumber==0){
-
-			JOptionPane.showMessageDialog(null, "Please fill in all mandatory fileds marked with the symbol '*' ","Alert", JOptionPane.WARNING_MESSAGE);
-
+			message.setText("Alert!");
+			message.setMessage("Please fill in all mandatory fileds marked with the symbol '*' ");
+			message.open();
+			
 		}
 		else if (cmboselect==0){
-			JOptionPane.showMessageDialog(null, "Please select a sex for the patient","Alert", JOptionPane.WARNING_MESSAGE);
-		}
+			
+			message.setText("Alert!");
+			message.setMessage("Please select a sex for the patient");
+			message.open();
+			}
 		else{
 			regex();
 		}
@@ -462,7 +529,6 @@ public class patients {
 
 		String fname = txt_fname.getText();
 		String lname = txt_lname.getText();
-		String  address1 = txt_address1.getText();
 		String city = txt_city.getText();
 		String postcde= txt_pstcde.getText();
 		String emailad= txt_email.getText();
@@ -478,52 +544,72 @@ public class patients {
 		System.out.println(telphone.matches(telmobreg)+"home");
 		System.out.println(moblie.matches(telmobreg)+"mobile");
 		System.out.println(city.matches(cityreg)+"city");
-
-
+		message = new MessageBox(shell,SWT.ICON_WARNING |SWT.OK);
+		
 		if(fname.matches(namereg)==false){
-
-			JOptionPane.showMessageDialog(null, "Invalid Name field cannot contain special/numeric characters","Alert", JOptionPane.WARNING_MESSAGE);
+			
+			message.setText("Alert!");
+			message.setMessage("Invalid First Name, field cannot contain special/numeric characters");
+			message.open();
 		}
 
 		else if(lname.matches(namereg)==false ){
-			JOptionPane.showMessageDialog(null, "Invalid Last Name field cannot contain special/numeric characters","Alert", JOptionPane.WARNING_MESSAGE);
-
+			message.setText("Alert!");
+			message.setMessage("Invalid Last Name , field cannot contain special/numeric characters");
+			message.open();
+			
 		}
 		else if(postcde.matches(postcodereg)==false){
+			message.setText("Alert!");
+			message.setMessage("Invalid Postcode field cannot contain special characters");
+			message.open();
 
-
-			JOptionPane.showMessageDialog(null, "Invalid Postcode field cannot contain special characters","Alert", JOptionPane.WARNING_MESSAGE);
 		}
 		else if(emailad.length()!=0 && emailad.matches(emailreg)==false){
-			JOptionPane.showMessageDialog(null, "Invalid Email address","Alert", JOptionPane.WARNING_MESSAGE);
-		}
+			message.setText("Alert!");
+			message.setMessage("Invalid Email address");
+			message.open();
+			
+			}
 		else if(dob.matches(dobreg)==false){
-			JOptionPane.showMessageDialog(null, "Invalid Date of Birth, valid format DD/MM/YYYY","Alert", JOptionPane.WARNING_MESSAGE);
+			message.setText("Alert!");
+			message.setMessage("Invalid Date of Birth, valid format DD/MM/YYYY");
+			message.open();
+			
 
 		}
 
 		else if(city.matches(cityreg)==false){
+			
+			message.setText("Alert!");
+			message.setMessage("Invalid City , this field cannot contain numeric / special characters");
+			message.open();
 
-			JOptionPane.showMessageDialog(null, "Invalid City , this field cannot contain numeric / special characters","Alert", JOptionPane.WARNING_MESSAGE);
 
 		}
 		else if(telphone.matches(telmobreg)==false){
+			
+			message.setText("Alert!");
+			message.setMessage("Invalid Home Telephone number");
+			message.open();
 
-			JOptionPane.showMessageDialog(null, "Invalid HomeTelephone","Alert", JOptionPane.WARNING_MESSAGE);
 		}
 
 		else if(moblie.length()!=0 && moblie.matches(telmobreg)==false){
-			JOptionPane.showMessageDialog(null, "Invalid Mobile Number","Alert", JOptionPane.WARNING_MESSAGE);
-
+			
+			message.setText("Alert!");
+			message.setMessage("Invalid Mobile Number");
+			message.open();
+			
 		}
 
 
 		else if(fname.matches(namereg)==false && lname.matches(namereg)==false &&postcde.matches(postcodereg)==false && emailad.matches(emailreg)==false
 				&& dob.matches(dobreg)==false && city.matches(cityreg)==false && telphone.matches(telmobreg)==false && moblie.matches(telmobreg)==false){
 
-
-			JOptionPane.showMessageDialog(null, "Invalid entries Please fill in valid data","Alert", JOptionPane.WARNING_MESSAGE);
-
+			message.setText("Alert!");
+			message.setMessage("Invalid entries Please fill in valid data");
+			message.open();
 
 		} 
 
@@ -532,8 +618,10 @@ public class patients {
 			statementexecute();
 		}
 		else{
-			JOptionPane.showMessageDialog(null, "Make sure all mandatory fileds have valid data","Alert", JOptionPane.WARNING_MESSAGE);
-
+			message.setText("Alert!");
+			message.setMessage("Make sure all mandatory fileds have valid data");
+			message.open();
+			
 		}
 	}
 
@@ -573,6 +661,7 @@ public class patients {
 	}
 	public void statementexecute(){ // select the correct option depending if the users is updating or deleting or adding new patient
 		String sex = null ;
+		message = new MessageBox(shell, SWT.ICON_INFORMATION | SWT.YES | SWT.NO);
 		if(cmbo_sex.getSelectionIndex()==1){
 			sex="Male";
 		}else if (cmbo_sex.getSelectionIndex()==2){
@@ -581,9 +670,11 @@ public class patients {
 		
 		
 		if(add==true){
-		
-		int confirmantion = JOptionPane.showConfirmDialog(null, "Are you sure you would like to add the patient "+txt_fname.getText()+" "+txt_lname.getText()+" to the database","Confrimation", JOptionPane.YES_NO_OPTION);
-		if(confirmantion==JOptionPane.YES_OPTION){
+				message.setText("Warning!");
+			message.setMessage("Are you sure you would like to add the patient "+txt_fname.getText()+" "+txt_lname.getText()+" to the database");
+		int confirmation= message.open();
+			
+			if(confirmation==SWT.OK){
 
 			String addstatement="INSERT INTO patients(fname,lname,dob,sex,homenumber,mobile,email,address1,address2,address3,city,county,postcode)VALUES("+"'"+txt_fname.getText()+"'"+","+"'"+
 					txt_lname.getText()+"'"+","+"'"+txt_dob.getText()+"'"+","+"'"+sex+"'"+","+"'"+txt_hmeno.getText().toString()+"'"+","+"'"+txt_mobile.getText()+"'"+","+"'"+txt_email.getText()+"'"+","+"'"+txt_address1.getText()+"'"+","+"'"+txt_address2.getText()+"'"+","+"'"+txt_address3.getText()+"'"+","+"'"+txt_city.getText()+"'"+","+"'"+txt_county.getText()+"'"+","+"'"+txt_pstcde.getText()+"');";
@@ -596,13 +687,24 @@ public class patients {
 			//re freshing table
 			patient_table.removeAll();
 			queries.db_table(patient_table, executestaement);
-			JOptionPane.showMessageDialog(null, "You have successfully added the patient to the database","Success", JOptionPane.PLAIN_MESSAGE);
-		clear_txtfields();
+			
+			
+			message.setText("Success");
+			message.setMessage("You have successfully added the patient to the database");
+			message.open();
+			clear_txtfields();
 		}
 		}
 		else if (delete==true){
-			int confirmantion1 = JOptionPane.showConfirmDialog(null, "Are you sure you would like to delete the patient "+txt_fname.getText()+" "+txt_lname.getText()+" from the database ","Confrimation", JOptionPane.YES_NO_OPTION);
-			if(confirmantion1==JOptionPane.YES_OPTION){
+			
+			
+			message.setText("Warning!");
+			message.setMessage("Are you sure you would like to delete the patient "+txt_fname.getText()+" "+txt_lname.getText()+" from the database");
+			
+			
+			int confirmation_delete =message.open();
+			
+			if(confirmation_delete==SWT.YES){
 				
 	 		String deletequery = "DELETE FROM patients WHERE patid="+txt_patid.getText();
 			queries.delete_add_update(deletequery);
@@ -617,18 +719,28 @@ public class patients {
 			queries.db_table(patient_table,executestaement);
 			
 			// message to indicate the update has gone through
-			JOptionPane.showMessageDialog(null, "You have successfully deleted the patient from the database","Success", JOptionPane.PLAIN_MESSAGE);
+			
+			message = new MessageBox(shell, SWT.ICON_INFORMATION | SWT.OK);
+			message.setText("Success");
+			message.setMessage("You have successfully deleted the patient from the database");
+			message.open();
 			
 			clear_txtfields();// clearing all textfields
 			btnAddPatient.setEnabled(true);
 			btnupdate.setEnabled(false);
 			btndelete.setEnabled(false);
 			}
+			else{
+			System.out.println("noo");
+			}
 		}
 			else if (update==true){
 				
-				int confirmantion2 = JOptionPane.showConfirmDialog(null, "Are you sure you would like to update the patient record "+txt_fname.getText()+" "+txt_lname.getText()+"","Confrimation", JOptionPane.YES_NO_OPTION);
-				if(confirmantion2==JOptionPane.YES_OPTION){
+				message.setText("Warning!");
+				message.setMessage("Are you sure you would like to update the patient record "+txt_fname.getText()+" "+txt_lname.getText());
+			int confirmation_update = message.open();
+				
+				if(confirmation_update==SWT.YES){
 				String updatequery="UPDATE patients SET fname='"+txt_fname.getText()+"'"+","+"lname='"+txt_lname.getText()+"'"+","+"dob='"+txt_dob.getText()+"'"+","+"sex='"+sex+"'"+","+"homenumber='"+txt_hmeno.getText()+"'"+","+"mobile='"+txt_mobile.getText()+"'"+","+"email='"+txt_email.getText()+"'"+","+"address1='"+txt_address1.getText()+"'"+","+"address2='"+txt_address2.getText()+"'"+","+"address3='"+txt_address3.getText()+"'"+","+"city='"+txt_city.getText()+"'"+","+"county='"+txt_county.getText()+"'"+","+"postcode='"+txt_pstcde.getText()+"' WHERE patid="+txt_patid.getText();
 
 				queries.delete_add_update(updatequery);// sending the query built above to the necessary method to execute
@@ -643,13 +755,19 @@ public class patients {
 				patient_table.removeAll();
 				queries.db_table(patient_table,executestaement);
 				
-				JOptionPane.showMessageDialog(null, "You have successfully updated the patient record","Success", JOptionPane.PLAIN_MESSAGE);
-				
+				message = new MessageBox(shell, SWT.ICON_INFORMATION | SWT.OK);
+				message.setText("Success");
+				message.setMessage("You have successfully updated the patient record");
+				message.open();
+	
 				clear_txtfields();// clearing all textfields
 				btnAddPatient.setEnabled(true);
 				btnupdate.setEnabled(false);
 				btndelete.setEnabled(false);
 			}
+				else{
+					System.out.println("nope");
+				}
 			
 		}
 	}

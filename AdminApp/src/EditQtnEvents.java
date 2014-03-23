@@ -2,10 +2,9 @@
 
 import java.util.ArrayList;
 
-
 import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.SWT;
-
 
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.events.SelectionEvent;
@@ -13,7 +12,6 @@ import org.eclipse.swt.events.KeyListener;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.ModifyEvent;
-
 
 import java.io.BufferedWriter;
 import java.io.FileWriter;
@@ -37,20 +35,33 @@ class EditQtnEvents implements SelectionListener, KeyListener, ModifyListener
 	//public static ArrayList<String> arrayAnswers = new ArrayList<String>();
 
 
+
+
 	public static ArrayList<String> arrayQuestionNames;
 	public static ArrayList<String> arrayQuestionType;
 	public static ArrayList<String> arrayAnswers;
+
+
 
 
 	//public static String EditQ.questionnaireName;
 	//public static int EditQ.questionnaireID;
 
 
+
+
 	public static Connection connectToDB;
 	public static Statement statement;
 
 
+
+
 	//public FileDialog loadQtnDialog;
+
+
+	private static 	MessageBox wmessages, succ_message;
+
+
 
 
 
@@ -61,12 +72,17 @@ class EditQtnEvents implements SelectionListener, KeyListener, ModifyListener
 	}
 	public void widgetSelected(SelectionEvent e)
 	{
+		wmessages = new MessageBox(EditQ.shell,SWT.ICON_WARNING|SWT.OK);
+		succ_message = new MessageBox(EditQ.shell,SWT.ICON_INFORMATION|SWT.OK);
+
 
 
 		if(e.getSource() == EditQ.singleChoiceBtn)
 		{
 			// Enable the 'answerInput' field.
 			EditQ.answerInput.setEnabled(true);
+
+
 
 
 		}
@@ -87,7 +103,11 @@ class EditQtnEvents implements SelectionListener, KeyListener, ModifyListener
 		}
 
 
+
+
 		//  -- 'addQtnToList' - Adding the Questions to the List.	-- //
+
+
 
 
 		if(e.getSource() == EditQ.addQtnToListBtn)
@@ -100,7 +120,13 @@ class EditQtnEvents implements SelectionListener, KeyListener, ModifyListener
 
 
 
+
+
+
+
 		// -- 'editAnsBtn' -- Editing answers in the list. -- //
+
+
 
 
 			if(e.getSource() == EditQ.editAnsBtn)
@@ -114,12 +140,18 @@ class EditQtnEvents implements SelectionListener, KeyListener, ModifyListener
 					EditQ.applyAnsBtn.setEnabled(true);
 
 
+
+
 					// Grab the selected String.
 					String selectedAnswer = EditQ.answerList.getSelection()[0];
 
 
+
+
 					// Debug purposes.
 					System.out.println("Editing \"" + selectedAnswer + "\"");
+
+
 
 
 					// Places the selected text in the textfield so the user can edit.
@@ -129,15 +161,23 @@ class EditQtnEvents implements SelectionListener, KeyListener, ModifyListener
 					//EditQ.answerInput.setSelection(0, selectedAnswer.length());
 
 
+
+
 					// Disables the 'editAnsBtn' after the button has been clicked.
 					EditQ.editAnsBtn.setEnabled(false);
+
+
 
 
 				}
 			}
 
 
+
+
 			// -- 'applyAnsBtn' -- Apply the new answer -- //
+
+
 
 
 			if(e.getSource() == EditQ.applyAnsBtn)
@@ -155,26 +195,40 @@ class EditQtnEvents implements SelectionListener, KeyListener, ModifyListener
 				EditQ.answerList.add(EditQ.answerInput.getText(), indexOfAnswerList);
 
 
+
+
 				// Disables the 'applyAnsBtn' after the button has been clicked.
 				EditQ.applyAnsBtn.setEnabled(false);
 				// enables the 'editAnsBtn' after the button 'applyAnsBtn has been clicked.
 				EditQ.editAnsBtn.setEnabled(true); // -- I need to check this section for possible errors.
 
 
+
+
 				// select the first answer.
 				EditQ.answerList.select(indexOfAnswerList);
+
+
 
 
 			}
 
 
+
+
 			// -- End of 'applyAnsBtn' -- Applies the changed name -- //
+
+
 
 
 			// -- END of 'editAnsBtn' -- Editing/ answers in the list. -- //
 
 
+
+
 			// -- 'deleteAnsBtn' -- Deleting answers in the list //
+
+
 
 
 			if(e.getSource() == EditQ.deleteAnsBtn)
@@ -184,14 +238,20 @@ class EditQtnEvents implements SelectionListener, KeyListener, ModifyListener
 				{
 
 
+
+
 					System.out.println("deleteAnsBtn");
 					// Grab the selected String.
 					String selectedAnswer = EditQ.answerList.getSelection()[0];
 
 
+
+
 					// Deletes the answer from the list.
 					EditQ.answerList.remove(selectedAnswer);
 
+
+					
 
 					if(EditQ.answerList.getItemCount() < 1)
 					{
@@ -202,6 +262,8 @@ class EditQtnEvents implements SelectionListener, KeyListener, ModifyListener
 					}
 
 
+
+
 					// select the first answer.
 					EditQ.answerList.select(0);		
 				}
@@ -209,7 +271,11 @@ class EditQtnEvents implements SelectionListener, KeyListener, ModifyListener
 			// -- 'deleteAnsBtn' -- Deleting answers in the list //
 
 
+
+
 			// -- 'updateBtn' - Exports the Questionnaire to a Text File. -- //
+
+
 
 
 			// This entire section works as expected :D
@@ -220,7 +286,10 @@ class EditQtnEvents implements SelectionListener, KeyListener, ModifyListener
 				{
 					// If a questionnaire has not been selected from the FileDialog...
 					if(EditQ.questionnaireName.isEmpty())
-					{
+					{	
+						succ_message.setMessage("Please Select a questionnaire");
+						succ_message.setText("Alert!");
+						succ_message.open();
 						// Do nothing.
 						System.out.println("No questionnaire has been selected");
 					}else
@@ -228,11 +297,15 @@ class EditQtnEvents implements SelectionListener, KeyListener, ModifyListener
 						// For debug purposes.
 						String exportString = "";
 
+
 						// Export.
 						String jsonString = "";
 
+
 						int noOfQtns = arrayQuestionNames.size();																				
 						String query = "";
+
+
 
 
 						try
@@ -246,11 +319,17 @@ class EditQtnEvents implements SelectionListener, KeyListener, ModifyListener
 							statement = connectToDB.createStatement();
 
 
+
+
 							// For some reason 'EditQ.questionnaireID' is equal to where it should not be 0 :/
+
+
 
 
 							// Delete the existing questions from the 'Questions' table.
 							query = "DELETE FROM Questions WHERE question_id=" + EditQ.questionnaireID + ";";
+
+
 
 
 							// Debug purposes.
@@ -260,12 +339,19 @@ class EditQtnEvents implements SelectionListener, KeyListener, ModifyListener
 							System.out.println("QuestionnaireID from 'updateBtn': " + EditQ.questionnaireID);
 							System.out.println("QuestionnaireName from 'updateBtn': " + EditQ.questionnaireName);
 
+
 							statement.executeUpdate(query);
+
 
 							// Modifying the JSON Export...
 
+
 							jsonString = "{\n" +
 																"\"questionnaire\" : [" + "\n" ;
+
+
+
+
 
 
 
@@ -279,7 +365,11 @@ class EditQtnEvents implements SelectionListener, KeyListener, ModifyListener
 								statement.executeUpdate(query);
 
 
+
+
 							}
+
+
 
 
 							// I NEED TO TEST THIS PART OUT THOROUGHLY.
@@ -288,13 +378,19 @@ class EditQtnEvents implements SelectionListener, KeyListener, ModifyListener
 							statement.executeUpdate(query);
 
 
+
+
 							statement.close();	 // Works.
 							connectToDB.close(); // Works.
+
+
 
 
 						}catch(ClassNotFoundException cnfe)
 						{
 							cnfe.printStackTrace();
+
+
 
 
 						}catch(SQLException sqle)
@@ -303,14 +399,20 @@ class EditQtnEvents implements SelectionListener, KeyListener, ModifyListener
 						}
 
 
+
+
 						for(int x = 0;x<noOfQtns;x++)
 						{
 							// Debug purposes.
 							exportString = exportString + (arrayQuestionNames.get(x) + "+" + arrayQuestionType.get(x) + "+" + arrayAnswers.get(x) + "and the length of answers is: " + arrayAnswers.get(x).length() + "\n");
 
 
+
+
 							// Builds the JSON output.
 							jsonString = jsonString + "{ \"question\":\"" + arrayQuestionNames.get(x) + "\", \"type\":\"" + arrayQuestionType.get(x) + "\", \"answers\":\"" + arrayAnswers.get(x) + "\"},\n";		
+
+
 
 
 						}
@@ -322,18 +424,31 @@ class EditQtnEvents implements SelectionListener, KeyListener, ModifyListener
 						// as checking whether we have reached the last question in a if statement might slow things down 
 
 
+
+
 						// Debug purposes.
 						System.out.println(exportString);
 						System.out.println("The Questionnaire has been exported:\n" + jsonString);
 
+					
+						
+						succ_message.setMessage("The Questionnaire has been updated successfully");
+						succ_message.setText("Success!");
+						succ_message.open();
+
+
 
 						// So far so good - I NEED TO MAKE IT SO THAT IT UPDATES THE JSON FILE TOO ! ;D
+
+
 
 
 						// BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(new File("./exports/questionnaire.json")));
 						// I will later implement this section so it can detect what OS the application is being ran on. 		
 						try
 						{
+
+
 
 
 							// Overwrites the existing JSON File, assigning a value to uniquely identify the file ;)
@@ -344,15 +459,23 @@ class EditQtnEvents implements SelectionListener, KeyListener, ModifyListener
 							bufferedWriter.close();	// Closes the stream.
 
 
+
+
 						}catch(NullPointerException ne)
 						{
+
+
 
 
 						}catch(IOException ioe)
 						{
 
 
+
+
 						}
+
+
 
 
 						// Should load up the 'prevQtnList' in real time ;)
@@ -360,8 +483,12 @@ class EditQtnEvents implements SelectionListener, KeyListener, ModifyListener
 						query = "SELECT question_name, question_type, possible_answers FROM Questions UNION SELECT question_name, question_type, possible_answers FROM Questions;";
 
 
+
+
 						// Perform Query on start up.
 						loadQuestions(query);
+
+
 
 
 						if(EditQ.arrayPrevQtnNames.size() > 0)
@@ -374,7 +501,11 @@ class EditQtnEvents implements SelectionListener, KeyListener, ModifyListener
 						}
 
 
+
+
 						// -- Test this section thoroughly (when time allows me to) -- //
+
+
 
 
 						// Disable the update button.
@@ -387,16 +518,23 @@ class EditQtnEvents implements SelectionListener, KeyListener, ModifyListener
 
 
 
+
+
+
+
 						// Empty the Arrays for that correspond to 'qtnList'.
 						arrayQuestionNames = new ArrayList<String>();
 						arrayQuestionType = new ArrayList<String>();
 						arrayAnswers = new ArrayList<String>();
 
 
+
+
 						// Clear the 'qtnList'.
 						EditQ.qtnList.removeAll();
 						// Clear the 'titleInput' field
 						EditQ.titleInput.setText("");
+
 
 						// I need to look into this section throughly
 						EditQ.shell.dispose();
@@ -405,20 +543,33 @@ class EditQtnEvents implements SelectionListener, KeyListener, ModifyListener
 					}
 
 
+
+
 				}else
 				{
+					wmessages.setMessage("Please specify a title for the questionnaire");
+					wmessages.setText("Alert!");
+					wmessages.open();
 					// Debug purposes.
 					System.out.println("Please specify a title for the questionnaire");
 				}
 
 
+
+
 			}
+
+
 
 
 			// --  END of 'updateBtn' - Overwrites the an existing json File, and updates the database. -- //
 
 
+
+
 			// -- 'editQtnBtn' - Allows the administrator to edit questionnaires -- //
+
+
 
 
 			if(e.getSource() == EditQ.editQtnBtn)
@@ -430,12 +581,18 @@ class EditQtnEvents implements SelectionListener, KeyListener, ModifyListener
 					EditQ.qtnList.setEnabled(false);
 
 
+
+
 					// Prevent the user from adding a question to a list during 'editing mode'.
 					EditQ.addQtnToListBtn.setEnabled(false);
 
 
+
+
 					// Prevent the user from adding a question from the 'prevQtnList' to the current list during 'editing mode'.
 					EditQ.prevQtnAddBtn.setEnabled(false);
+
+
 
 
 					// Disable the 'editQtnBtn'
@@ -444,12 +601,18 @@ class EditQtnEvents implements SelectionListener, KeyListener, ModifyListener
 					EditQ.deleteQtnBtn.setEnabled(false);
 
 
+
+
 					// Enable the 'applyQtnBtn'
 					EditQ.applyQtnBtn.setEnabled(true);
 
 
+
+
 					// Disable the 'updateBtn'
 					EditQ.updateBtn.setEnabled(false);
+
+
 
 
 					// Index of the selected question.
@@ -460,8 +623,14 @@ class EditQtnEvents implements SelectionListener, KeyListener, ModifyListener
 					String currentQuestionType = arrayQuestionType.get(selectedQtnIndex);
 
 
+
+
 					// Debug.
 					System.out.println("The currentQuestionType =" + currentQuestionType);
+
+
+
+
 
 
 
@@ -470,6 +639,8 @@ class EditQtnEvents implements SelectionListener, KeyListener, ModifyListener
 					// Using the '==' operator instead of using '.equals()', the following four conditions ends up being false...
 					// ...if the question name, etc, was obtained came from the array that was initialised from the database...
 					// ... Well, it works now. Thank goodness.
+
+
 
 
 					// from the database using the '==' operator instead of using '.contains()' 
@@ -481,6 +652,8 @@ class EditQtnEvents implements SelectionListener, KeyListener, ModifyListener
 						EditQ.multiChoiceBtn.setSelection(false);
 						EditQ.userInputBtn.setSelection(false);
 						EditQ.dateChoiceBtn.setSelection(false);
+
+
 
 
 						// Enable 'editAnsBtn', deleteAnsBtn' and the 'answerInput' field.
@@ -498,10 +671,16 @@ class EditQtnEvents implements SelectionListener, KeyListener, ModifyListener
 						EditQ.dateChoiceBtn.setSelection(false);
 
 
+
+
 						// Enable 'editAnsBtn', deleteAnsBtn' and the 'answerInput' field.
 						EditQ.editAnsBtn.setEnabled(true);
 						EditQ.deleteAnsBtn.setEnabled(true);
 						EditQ.answerInput.setEnabled(true);
+
+
+
+
 
 
 
@@ -511,6 +690,8 @@ class EditQtnEvents implements SelectionListener, KeyListener, ModifyListener
 					{
 						// Debug purposes.
 						System.out.println("This Question equals: " + currentQuestionType);
+
+
 
 
 						EditQ.userInputBtn.setSelection(true);
@@ -524,6 +705,8 @@ class EditQtnEvents implements SelectionListener, KeyListener, ModifyListener
 						System.out.println("This Question equals: " + currentQuestionType);
 
 
+
+
 						EditQ.dateChoiceBtn.setSelection(true);
 						EditQ.singleChoiceBtn.setSelection(false);
 						EditQ.multiChoiceBtn.setSelection(false);
@@ -535,10 +718,16 @@ class EditQtnEvents implements SelectionListener, KeyListener, ModifyListener
 					}
 
 
+
+
 					// Gets the String of answers according to the question selected.
 					String currentQtnAnswer = arrayAnswers.get((selectedQtnIndex));
 					// Debug purposes.
 					System.out.println("The String of answers=" + currentQtnAnswer);
+
+
+
+
 
 
 
@@ -550,20 +739,30 @@ class EditQtnEvents implements SelectionListener, KeyListener, ModifyListener
 							String answers[] = currentQtnAnswer.split("@");
 
 
+
+
 							// Set the 'answerList' to the answers according to the question selected.
 							EditQ.answerList.setItems(answers);
+
+
 
 
 							// Set the 'answerList' to automatically select the first question.	- THIS MAY NOT WORK WITH 'userInputBtn' and 'dateChoiceBtn'.
 							EditQ.answerList.setSelection(0);
 
 
+
+
 							// Debug purposes.
 							System.out.println("Answers for the selected Question is: " + currentQtnAnswer + " and the length of the array is: " + answers.length);
 
 
+
+
 						}else
 						{
+
+
 
 
 							// Debug purposes.
@@ -575,14 +774,26 @@ class EditQtnEvents implements SelectionListener, KeyListener, ModifyListener
 
 
 
+
+
+
+
+
+
 				}
 			}
+
+
 
 
 			// -- END of 'editQtnBtn' - Allows the administrator to edit questionnaires -- //
 
 
+
+
 			// -- 'applyQtnBtn' - Applies the changes made to the question -- //
+
+
 
 
 			if(e.getSource() == EditQ.applyQtnBtn)
@@ -591,10 +802,16 @@ class EditQtnEvents implements SelectionListener, KeyListener, ModifyListener
 			}
 
 
+
+
 			// -- End of 'applyQtnBtn' - Applies the changes made to the question -- //
 
 
+
+
 			// -- 'deleteQtnBtn' - Delete a question from the current list of questions -- //
+
+
 
 
 			if(e.getSource() == EditQ.deleteQtnBtn)
@@ -604,10 +821,14 @@ class EditQtnEvents implements SelectionListener, KeyListener, ModifyListener
 				{
 					int selectedQtnIndex = EditQ.qtnList.getSelectionIndex();
 
+					
+
 
 					System.out.println("deleteQtnBtn has been pressed.");
 					// Grab the String representation of the question selected.
 					//String selectedQuestion = EditQ.answerList.getSelection()[0];
+
+
 
 
 					// Delete the Question from the list.
@@ -619,6 +840,10 @@ class EditQtnEvents implements SelectionListener, KeyListener, ModifyListener
 					// Delete the String of answers from 'arrayAnswers'
 					arrayAnswers.remove(selectedQtnIndex);
 
+					
+		succ_message.setMessage("The Selected question has been deleted from the questionnaire");
+		succ_message.setText("Alert!");
+		succ_message.open();
 
 					if(EditQ.qtnList.getItemCount() < 1)
 					{
@@ -628,11 +853,17 @@ class EditQtnEvents implements SelectionListener, KeyListener, ModifyListener
 							EditQ.deleteQtnBtn.setEnabled(false);
 
 
+
+
 							// Disable 'updateBtn'
 							EditQ.updateBtn.setEnabled(false);
 
 
+
+
 					}
+
+
 
 
 					// select the first answer.
@@ -642,7 +873,11 @@ class EditQtnEvents implements SelectionListener, KeyListener, ModifyListener
 			// -- END of 'deleteQtnBtn' - Delete a question from the current list of questions -- //
 
 
+
+
 			// -- 'prevQtnAdd' - Adding previously stored questions from the database to the main list -- //
+
+
 
 
 			if(e.getSource() == EditQ.prevQtnAddBtn)
@@ -651,7 +886,13 @@ class EditQtnEvents implements SelectionListener, KeyListener, ModifyListener
 				addPreviousQuestion();
 
 
+
+
 			}
+
+
+
+
 
 
 
@@ -659,24 +900,38 @@ class EditQtnEvents implements SelectionListener, KeyListener, ModifyListener
 			// -- END of 'prevQtnAdd' - Adding previously stored questions from the database to the main list -- //
 
 
+
+
 			// -- 'openMenuItem' code -- This section is no longer needed :) //
 
-			
-			
+
+
+
+
+
 			// -- End of 'openMenuItem' code -- //
+
+
 
 
 	}	// End of the 'widgetSelected(SelectionEvent e)' function.
 
 
+
+
 	public void keyPressed(KeyEvent e)
 	{
+		wmessages = new MessageBox(EditQ.shell,SWT.ICON_WARNING|SWT.OK);
+		succ_message = new MessageBox(EditQ.shell,SWT.ICON_INFORMATION|SWT.OK);
+
 		if(e.getSource() == EditQ.answerInput)
 		{
 			// If the carriage return key is pressed - i.e. the ENTER key...
 			if(e.keyCode == SWT.CR)
 			{
 				// I need to add some code for when the ENTER key is pressed during the process of an edit - i.e. 'editAnsBtn'. PLEASE CODE!!!
+
+
 
 
 				// Debug purposes.
@@ -692,17 +947,27 @@ class EditQtnEvents implements SelectionListener, KeyListener, ModifyListener
 
 
 
+
+
+
+
 					// Enable the 'editAnsBtn' and 'deleteAnsBtn' buttons - Rewrite this code for when an item in the list is selected.
 					EditQ.editAnsBtn.setEnabled(true);
 					EditQ.deleteAnsBtn.setEnabled(true);
+
+
 
 
 					// Clear the field.
 					EditQ.answerInput.setText("");
 
 
+
+
 					// select the first answer.
 					EditQ.answerList.select(0);
+
+
 
 
 				}
@@ -714,11 +979,23 @@ class EditQtnEvents implements SelectionListener, KeyListener, ModifyListener
 
 
 
+
+
+
+
+
+
+
+
 			}
+
+
 
 
 		}
 	} // End of 'keyPressed(KeyEvent e)...' event.
+
+
 
 
 	public void keyReleased(KeyEvent e)
@@ -727,17 +1004,28 @@ class EditQtnEvents implements SelectionListener, KeyListener, ModifyListener
 	}
 
 
+
+
 	public void modifyText(ModifyEvent e)
 	{
+		wmessages = new MessageBox(EditQ.shell,SWT.ICON_WARNING|SWT.OK);
+		succ_message = new MessageBox(EditQ.shell,SWT.ICON_INFORMATION|SWT.OK);
+
 		// 'searchInput' -- //
+
+
 
 
 		if(e.getSource() == EditQ.searchInput)
 		{
 			// Query statement.
-			
-		
+
+
+
+
 			String query = "";
+
+
 
 
 			if(EditQ.searchInput.getCharCount() > 0)
@@ -751,6 +1039,8 @@ class EditQtnEvents implements SelectionListener, KeyListener, ModifyListener
 				loadQuestions(query);
 
 
+
+
 			}else
 			{
 				// Automatically load all the questions hehe.
@@ -762,10 +1052,18 @@ class EditQtnEvents implements SelectionListener, KeyListener, ModifyListener
 		}
 
 
+
+
 		// End of 'searchInput' field -- //
 
 
+
+
 	} // End of 'modifyText(ModifyEvent e)'
+
+
+
+
 
 
 
@@ -781,6 +1079,12 @@ class EditQtnEvents implements SelectionListener, KeyListener, ModifyListener
 		String questionAnswer = "";
 
 
+		wmessages = new MessageBox(EditQ.shell,SWT.ICON_WARNING|SWT.OK);
+		succ_message = new MessageBox(EditQ.shell,SWT.ICON_INFORMATION|SWT.OK);
+
+
+
+
 
 
 		// I need to add more validations.
@@ -789,6 +1093,8 @@ class EditQtnEvents implements SelectionListener, KeyListener, ModifyListener
 		{		
 				// Store the name of the question inputted (or that is already in the 'qtnInput' field).
 				questionName = EditQ.qtnInput.getText();
+
+
 
 
 				// The three radio buttons for the 'Type of Question'
@@ -810,6 +1116,8 @@ class EditQtnEvents implements SelectionListener, KeyListener, ModifyListener
 				}
 
 
+
+
 				// If the 'answerList' is not empty, or either of the selected radio buttons are pressed...
 				if(EditQ.answerList.getItemCount() > 0 || EditQ.userInputBtn.getSelection() || EditQ.dateChoiceBtn.getSelection())
 				{
@@ -817,10 +1125,14 @@ class EditQtnEvents implements SelectionListener, KeyListener, ModifyListener
 					int lengthOfList = EditQ.answerList.getItemCount();
 
 
+
+
 					// If the 'userInputBtn' or 'dateChoiceBtn' are selected, 'questionAnswer' will have an empty String value.
 					if(EditQ.userInputBtn.getSelection() || EditQ.dateChoiceBtn.getSelection())
 					{
 						// Do nothing. (i.e. 'questionAnswer' will have a value of "" - In other words, an empty string but, still has a length of 1).
+
+
 
 
 					}else
@@ -843,6 +1155,10 @@ class EditQtnEvents implements SelectionListener, KeyListener, ModifyListener
 
 
 
+
+
+
+
 					// if the 'addQtnToListBtn' was clicked...
 					if(btn == EditQ.addQtnToListBtn)
 					{
@@ -850,13 +1166,19 @@ class EditQtnEvents implements SelectionListener, KeyListener, ModifyListener
 						arrayQuestionNames.add(questionName);
 
 
+
+
 						// Adds the questionType to the 'arrayQuestionType'
 						arrayQuestionType.add(questionType);
+
+
 
 
 						// Now we add the String of answers to 'arrayAnswers'
 						arrayAnswers.add(questionAnswer);
 						// So far so good :)
+
+
 
 
 						// Add the Question to the List  'qtnList' - Currently added questions.
@@ -865,7 +1187,13 @@ class EditQtnEvents implements SelectionListener, KeyListener, ModifyListener
 
 
 
+
+
+
+
 						// ------ I NEED TO MODIFY THIS SECTION SO I CAN ADD IT FOR THE OTHER BUTTONS TOO! ALL DONE ----- //
+
+
 
 
 						// Enable 'editQtnBtn', 'applyQtnBtn', and 'deleteQtnBtn'
@@ -874,8 +1202,12 @@ class EditQtnEvents implements SelectionListener, KeyListener, ModifyListener
 						EditQ.deleteQtnBtn.setEnabled(true);
 
 
+
+
 						// Enable 'updateBtn'
 						EditQ.updateBtn.setEnabled(true);
+
+
 
 
 						// Disable the 'editAnsBtn' and 'deleteAnsBtn'
@@ -885,8 +1217,18 @@ class EditQtnEvents implements SelectionListener, KeyListener, ModifyListener
 
 
 
+
+
+
+
 						// Set the 'qtnList' to automatically select the most recent question added. - WORKS NICELY! :)
 						EditQ.qtnList.setSelection(EditQ.qtnList.getItemCount()-1);
+
+
+
+
+
+
 
 
 
@@ -901,11 +1243,21 @@ class EditQtnEvents implements SelectionListener, KeyListener, ModifyListener
 
 
 
+
+
+
+
 						// Debug purposes.
 						System.out.println("questionName: " + questionName + ", questionType: " + questionType + " questionAnswer=" + questionAnswer);	
 
 
+
+
 						// ------ I NEED TO MODIFY THIS SECTION SO I CAN ADD IT FOR THE OTHER BUTTONS TOO! ALL DONE ----- //			
+
+
+
+
 
 
 
@@ -919,14 +1271,20 @@ class EditQtnEvents implements SelectionListener, KeyListener, ModifyListener
 						String oldQuestionName = questionName;
 
 
+
+
 						// Allow the user to, once again, interact with the 'qtnList'.
 						EditQ.qtnList.setEnabled(true);
+
+
 
 
 						// Allow the user to, once again, add a question to the 'qtnList'.
 						EditQ.addQtnToListBtn.setEnabled(true);
 						// Allow the user to, once again, add a question from 'prevQtnList' to the main list.
 						EditQ.prevQtnAddBtn.setEnabled(true);
+
+
 
 
 						// Delete the old Question from the 'qtnList'.
@@ -937,6 +1295,12 @@ class EditQtnEvents implements SelectionListener, KeyListener, ModifyListener
 						EditQ.qtnList.add(questionName, selectedQtnIndex);
 						// Add the modified name of the question inputted, to the array.
 						arrayQuestionNames.add(selectedQtnIndex, questionName);
+
+
+
+
+
+
 
 
 
@@ -954,10 +1318,14 @@ class EditQtnEvents implements SelectionListener, KeyListener, ModifyListener
 						// So far so good :) - CONFIRMED!
 
 
+
+
 						// Clean up the 'qtnInput' field, 'answerInput' field, and 'answerList'
 						EditQ.qtnInput.setText("");
 						EditQ.answerInput.setText("");
 						EditQ.answerList.removeAll();
+
+
 
 
 						// Set radio button 'singleChoiceBtn' to be selected. - I could delete this.
@@ -966,6 +1334,10 @@ class EditQtnEvents implements SelectionListener, KeyListener, ModifyListener
 						EditQ.userInputBtn.setSelection(false);
 						EditQ.dateChoiceBtn.setSelection(false);
 						// CONTINUE FROM HERE!
+
+
+
+
 
 
 
@@ -980,6 +1352,8 @@ class EditQtnEvents implements SelectionListener, KeyListener, ModifyListener
 						EditQ.updateBtn.setEnabled(true);
 
 
+
+
 						// Disable 'editAnsBtn', deleteAnsBtn' and the 'answerInput' field.
 						EditQ.editAnsBtn.setEnabled(false);
 						EditQ.deleteAnsBtn.setEnabled(false);
@@ -990,23 +1364,42 @@ class EditQtnEvents implements SelectionListener, KeyListener, ModifyListener
 
 
 
+
+
+
+
+
+
 						// Sets the list to select the modifed question.
 						EditQ.qtnList.setSelection(selectedQtnIndex);				
+
+
 
 
 					}
 
 
+
+
 				}else
 				{
-					// if 'answerList' - A dialog box should pop up if there are no answers supplied!
+					wmessages.setMessage("Please Provide Answers");
+					wmessages.setText("Alert!");
+					wmessages.open();
+				// if 'answerList' - A dialog box should pop up if there are no answers supplied!
 					System.out.println("At least input an answer!");
 				}						
 		}else
-		{
+		{		
+			wmessages.setMessage("Please Type in a Question");
+			wmessages.setText("Alert!");
+			wmessages.open();
+			
 			// if 'qtnInput' - A dialog box should pop up if the text is empty!
 			System.out.println("Type in a Question!");
 		}
+
+
 
 
 		//-------------------------------//-------------------------------//-------------------------------//
@@ -1014,7 +1407,13 @@ class EditQtnEvents implements SelectionListener, KeyListener, ModifyListener
 
 
 
+
+
+
+
 	}
+
+
 
 
 	public static void loadQuestions(String query)
@@ -1023,6 +1422,10 @@ class EditQtnEvents implements SelectionListener, KeyListener, ModifyListener
 		EditQ.arrayPrevQtnNames = new ArrayList<String>();
 		EditQ.arrayPrevQtnType = new ArrayList<String>();
 		EditQ.arrayPrevAnswers = new ArrayList<String>();
+
+
+
+
 
 
 
@@ -1041,7 +1444,13 @@ class EditQtnEvents implements SelectionListener, KeyListener, ModifyListener
 
 
 
+
+
+
+
 			ResultSet rs = statement.executeQuery(query);
+
+
 
 
 			// Loop through each row...
@@ -1056,7 +1465,11 @@ class EditQtnEvents implements SelectionListener, KeyListener, ModifyListener
 			}
 
 
+
+
 			// Works aha.
+
+
 
 
 			String prevQtns[] = {};
@@ -1066,8 +1479,18 @@ class EditQtnEvents implements SelectionListener, KeyListener, ModifyListener
 			EditQ.prevQtnList.setItems(prevQtns);
 
 
+
+
 			/// Set it to automatically select the first question - I will get back to this.
 			EditQ.prevQtnList.select(0);	
+
+
+
+
+
+
+
+
 
 
 
@@ -1087,12 +1510,20 @@ class EditQtnEvents implements SelectionListener, KeyListener, ModifyListener
 	}
 
 
+
+
 	public void addPreviousQuestion()
 	{
 		// Now, it is time to test this out...
 
 
+
+
 		// THE FINALE LIES HERE! - F****, so long.
+
+
+		wmessages = new MessageBox(EditQ.shell,SWT.ICON_WARNING|SWT.OK);
+		succ_message = new MessageBox(EditQ.shell,SWT.ICON_INFORMATION|SWT.OK);
 
 
 		if(EditQ.prevQtnList.getItemCount() > 0)
@@ -1100,7 +1531,11 @@ class EditQtnEvents implements SelectionListener, KeyListener, ModifyListener
 			int selectedPrevQtnIndex = EditQ.prevQtnList.getSelectionIndex();
 
 
+
+
 			// I would need to think long and hard for this one section as I don't have a database to test it on yet.
+
+
 
 
 			// Get the question name selected on 'prevQtnList'.
@@ -1111,16 +1546,22 @@ class EditQtnEvents implements SelectionListener, KeyListener, ModifyListener
 			EditQ.qtnList.add(prevQtnName);	
 
 
+
+
 			// Get the question type of the selected question from 'prevQtnList.
 			String prevQtnType = EditQ.arrayPrevQtnType.get(selectedPrevQtnIndex);
 			// Adds the question type to the main arrays
 			arrayQuestionType.add(prevQtnType);
 
 
+
+
 			// Get the String of answers for the selected question from 'prevQtnList'
 			String prevQtnAnswers = EditQ.arrayPrevAnswers.get(selectedPrevQtnIndex);
 			// Adds the String of answers to the main arrays.
 			arrayAnswers.add(prevQtnAnswers);
+
+
 
 
 			// Enable the 'editQtnBtn'.
@@ -1131,8 +1572,12 @@ class EditQtnEvents implements SelectionListener, KeyListener, ModifyListener
 			EditQ.updateBtn.setEnabled(true);
 
 
+
+
 			/// Set it to automatically select the recently added question in the list. - I will get back to this.
 			EditQ.qtnList.select(selectedPrevQtnIndex);	
+
+
 
 
 		}else
@@ -1140,6 +1585,7 @@ class EditQtnEvents implements SelectionListener, KeyListener, ModifyListener
 			// Debug purposes.
 			System.out.println("There are no questions currently stored in the database.");
 		}
+
 
 		/*
 		// Debug purposes.
@@ -1160,6 +1606,8 @@ class EditQtnEvents implements SelectionListener, KeyListener, ModifyListener
 		
 		*/
 	}
+
+
 
 
 }
