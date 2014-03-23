@@ -224,7 +224,7 @@ public class EditQ{
 
 
 		titleInput = new Text(leftPanel, SWT.SINGLE | SWT.BORDER);
-		GridData gdLeftText = new GridData(490, 20);
+		GridData gdLeftText = new GridData(481, 20);
 		gdLeftText.verticalAlignment = GridData.FILL;
 		gdLeftText.horizontalAlignment = GridData.FILL;
 		gdLeftText.horizontalSpan = 2;
@@ -271,10 +271,10 @@ public class EditQ{
 
 		qtnInput = new Text(leftMainPanel, SWT.SINGLE | SWT.BORDER);
 		GridData gdLeftMain2 = new GridData(490, 20);
-		gdLeftMain2.horizontalSpan = 2;
 		gdLeftMain2.horizontalAlignment = GridData.FILL;
 		gdLeftMain2.verticalAlignment = GridData.FILL;
 		qtnInput.setLayoutData(gdLeftMain2);
+		new Label(leftMainPanel, SWT.NONE);
 
 
 

@@ -29,6 +29,7 @@ public class main_menu {
 		shell.setBackground(SWTResourceManager.getColor(211, 211, 211));
 		shell.setSize(547, 438);
 		shell.setText("SWT Application");
+		//Display.getDefault().setAppName("Medical Surveys");
 		
 		shell.addListener(SWT.Close, new Listener() {
 		      public void handleEvent(Event event) {
@@ -84,6 +85,7 @@ public class main_menu {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				shell.dispose();
+				Display.getDefault().setAppName("Medical Surveys");
 				new CreateQ(display);
 			}
 		});

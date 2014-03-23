@@ -51,6 +51,8 @@ public class CreateQ{
 	public static ArrayList<String> arrayPrevAnswers;
 	private Menu menu;
 	private MenuItem mntmMainMenu;
+	private Menu menu_1;
+	private MenuItem mntmMainMenu_1;
 
 
 
@@ -58,11 +60,12 @@ public class CreateQ{
 	// Constructor.
 	public CreateQ(final Display display)
 	{
-		
-		shell = new Shell(display);
+		shell = new Shell(display, SWT.CLOSE | SWT.TITLE | SWT.MIN);
 		shell.setBackground(SWTResourceManager.getColor(211, 211, 211));
 		shell.setText("Create a Questionnaire");
-    shell.setSize(1024, 600);
+		shell.setSize(1024, 600);
+		
+		
 		// Has two columns, and 'makeColumnsEqualWidth' = false.
 		shell.setLayout(new GridLayout(2, true));
 
@@ -230,10 +233,10 @@ public class CreateQ{
 
 
 		GridData gdLeftMain7 = new GridData(500, 110);
-		gdLeftMain7.horizontalSpan = 2;
 		gdLeftMain7.horizontalAlignment = GridData.FILL;
 		//gdLeftMain7.verticalAlignment = GridData.FILL;
 		answerList.setLayoutData(gdLeftMain7);
+		new Label(leftMainPanel, SWT.NONE);
 
 
 		//leftMainPanel.setLayout(new GridLayout(3, false));
@@ -304,26 +307,6 @@ public class CreateQ{
 		new Label(leftBottomPanel, SWT.NONE);
 
 
-		exportLbl = new Label(leftBottomPanel, SWT.HORIZONTAL);
-		exportLbl.setBackground(SWTResourceManager.getColor(211, 211, 211));
-		exportLbl.setFont(SWTResourceManager.getFont("Segoe UI", 9, SWT.BOLD));
-		exportLbl.setText("Export Questionnaire:");
-		GridData gdLeftMain10 = new GridData();
-		gdLeftMain10.horizontalSpan = 3;
-		gdLeftMain10.horizontalAlignment = GridData.FILL;
-		gdLeftMain10.verticalAlignment = GridData.FILL;
-		exportLbl.setLayoutData(gdLeftMain10);
-
-
-		exportBtn = new Button(leftBottomPanel, SWT.PUSH);
-		exportBtn.setEnabled(false);
-		// Add a 'SelectionListener' event.
-		exportBtn.addSelectionListener(new CreateQtnEvents());
-		exportBtn.setText("Export to File");
-		new Label(leftBottomPanel, SWT.NONE);
-		new Label(leftBottomPanel, SWT.NONE);
-
-
 
 
 
@@ -344,7 +327,7 @@ public class CreateQ{
 		rightPanel = new Composite(shell, SWT.BORDER);
 		rightPanel.setBackground(SWTResourceManager.getColor(211, 211, 211));
 		rightPanel.setLayout(new GridLayout(1, false));
-		rightPanel.setLayoutData(new GridData(500, 550));
+		rightPanel.setLayoutData(new GridData(500, 513));
 
 
 		// -- rightTopPanel -- //
@@ -472,10 +455,10 @@ public class CreateQ{
 		// -- rightBottomPanel -- //
 
 
-		rightBottomPanel = new Composite(rightPanel, SWT.BORDER);
+		rightBottomPanel = new Composite(rightPanel, SWT.NONE);
 		rightBottomPanel.setBackground(SWTResourceManager.getColor(211, 211, 211));
 		rightBottomPanel.setLayout(new GridLayout(3, false));
-		rightBottomPanel.setLayoutData(new GridData(500, 200));
+		rightBottomPanel.setLayoutData(new GridData(500, 219));
 
 
 		qtnListLbl = new Label(rightBottomPanel, SWT.HORIZONTAL);
@@ -515,11 +498,29 @@ public class CreateQ{
 		deleteQtnBtn.setEnabled(false);
 		deleteQtnBtn.addSelectionListener(new CreateQtnEvents());
 		deleteQtnBtn.setText("Delete Question");
+				
+				
+						exportLbl = new Label(rightBottomPanel, SWT.HORIZONTAL);
+						exportLbl.setBackground(SWTResourceManager.getColor(211, 211, 211));
+						exportLbl.setFont(SWTResourceManager.getFont("Segoe UI", 9, SWT.BOLD));
+						exportLbl.setText("Export Questionnaire:");
+				new Label(rightBottomPanel, SWT.NONE);
+				new Label(rightBottomPanel, SWT.NONE);
+						
+						
+								exportBtn = new Button(rightBottomPanel, SWT.PUSH);
+								exportBtn.setEnabled(false);
+								// Add a 'SelectionListener' event.
+								exportBtn.addSelectionListener(new CreateQtnEvents());
+								exportBtn.setText("Export to File");
+						new Label(rightBottomPanel, SWT.NONE);
+						new Label(rightBottomPanel, SWT.NONE);
 		
 		menu = new Menu(shell, SWT.BAR);
+		
 		shell.setMenuBar(menu);
 		
-		mntmMainMenu = new MenuItem(menu, SWT.NONE);
+		mntmMainMenu = new MenuItem(menu, SWT.CASCADE);
 		mntmMainMenu.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -527,8 +528,53 @@ public class CreateQ{
 				new main_menu(display);
 			}
 		});
-		mntmMainMenu.setText("Main Menu");
+		mntmMainMenu.setText("Options");
+		
+		menu_1 = new Menu(mntmMainMenu);
+		mntmMainMenu.setMenu(menu_1);
+		
+		mntmMainMenu_1 = new MenuItem(menu_1, SWT.NONE);
+		mntmMainMenu_1.setText("Main Menu");
+		mntmMainMenu_1.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				shell.dispose();
+				// Needs implementation.
+				main_menu main_menu = new main_menu(Display.getDefault());
+			}
+		});
+		
+		MenuItem menuLogout = new MenuItem(menu_1, SWT.NONE);
+		menuLogout.setText("Logout");
+		menuLogout.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				shell.dispose();
+				// Needs implementation.
+				login login = new login();
+				login.open();
+			}
+		});
+		
+		MenuItem mntmHelp = new MenuItem(menu_1, SWT.NONE);
+		mntmHelp.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				//shell.dispose();
+				// Needs implementation.
+			}
+		});
+		
+		mntmHelp.setText("Help");
+		menuLogout.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				shell.dispose();
+				// Needs implementation.
+			}
+		});
 
+		
 
 		// -- rightBottomPanel (end) -- //
 
@@ -569,7 +615,5 @@ public class CreateQ{
 	
 		shell.dispose();
 	}
-
-
 } 
 
