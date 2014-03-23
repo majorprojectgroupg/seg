@@ -13,17 +13,22 @@ import org.eclipse.wb.swt.SWTResourceManager;
 import org.eclipse.swt.widgets.List;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.TableColumn;
+import org.eclipse.swt.events.MouseAdapter;
+import org.eclipse.swt.events.MouseEvent;
+import org.eclipse.swt.events.ModifyListener;
+import org.eclipse.swt.events.ModifyEvent;
 
 
 public class view_edit_result {
 
 	protected Shell shell;
 	private Table Resultstable;
-	private Text text;
-	private Text text_1;
-	private Text text_2;
+	private Text txt_search;
+	private Text txt_questionniare_name;
+	private Text txt_qestn_name;
 	private Text text_3;
-
+	private Text txt_pname;
+	private static String query= "SELECT Result_ID , Patient_ID , Questionnaire_Name , Patient_Name ,Status FROM Results WHERE Status='Complete' OR Status='Incomplete'";
 
 	public view_edit_result(final Display display) {
 		// TODO Auto-generated constructor stub
@@ -39,7 +44,21 @@ public class view_edit_result {
 		grpResultTable.setBounds(10, 25, 568, 227);
 		
 		Resultstable = new Table(grpResultTable, SWT.BORDER | SWT.FULL_SELECTION);
-		Resultstable.setBounds(10, 44, 548, 173);
+		Resultstable.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseDoubleClick(MouseEvent e) {
+				
+				
+				// once doubled clicked on a record the patient name , questionnaire name and list of questions will be loaded
+				// questions with missing answers will be highlighted in red ( or text colour can be changed to red)
+				// the table will only show completed or incomplete questionnaires
+				
+				//
+			
+				
+			}
+		});
+		Resultstable.setBounds(10, 41, 548, 173);
 		Resultstable.setHeaderVisible(true);
 		Resultstable.setLinesVisible(true);
 		
@@ -48,8 +67,25 @@ public class view_edit_result {
 		lblNewLabel.setBounds(183, 20, 80, 15);
 		lblNewLabel.setText("Quick Search");
 		
-		text = new Text(grpResultTable, SWT.BORDER);
-		text.setBounds(269, 17, 135, 21);
+		txt_search = new Text(grpResultTable, SWT.BORDER);
+		txt_search.addModifyListener(new ModifyListener() {
+			public void modifyText(ModifyEvent arg0) {
+				String txt= txt_search.getText().toString();
+				
+				if(txt.length()==0){
+					Resultstable.removeAll();
+					new sql_queries().db_table(Resultstable, query);
+				}
+				else{
+				// only selecting records which are complete or incomplete the search will not bring back records which have the status in progress or not attempted 
+			String search = " SELECT Result_ID , Patient_ID , Questionnaire_Name , Patient_Name ,Status FROM Results WHERE Result_ID LIKE '%"+txt+"%' OR Patient_ID LIKE '%"+txt+"%' OR Questionnaire_Name LIKE '%"+txt+"%' OR Patient_Name LIKE '%"+txt+"%' EXCEPT SELECT Result_ID , Patient_ID , Questionnaire_Name , Patient_Name ,Status FROM Results WHERE Status ='In Progress';";
+				System.out.println(search);
+				Resultstable.removeAll();
+				new sql_queries().db_table(Resultstable, search);
+				}
+			}
+		});
+		txt_search.setBounds(269, 17, 135, 21);
 		
 		Menu menu = new Menu(shell, SWT.BAR);
 		shell.setMenuBar(menu);
@@ -78,11 +114,11 @@ public class view_edit_result {
 		MenuItem mntmNewItem_1 = new MenuItem(menu, SWT.NONE);
 		mntmNewItem_1.setText("Help");
 		
-		Label label = new Label(shell, SWT.NONE);
-		label.setText("09/03/2014 11:06:57 PM");
-		label.setFont(SWTResourceManager.getFont("Verdana", 9, SWT.NORMAL));
-		label.setBackground(SWTResourceManager.getColor(211, 211, 211));
-		label.setBounds(424, 0, 164, 23);
+		Label Timestamp = new Label(shell, SWT.NONE);
+		Timestamp.setFont(SWTResourceManager.getFont("Verdana", 9, SWT.NORMAL));
+		Timestamp.setBackground(SWTResourceManager.getColor(211, 211, 211));
+		Timestamp.setBounds(424, 0, 164, 23);
+		Timestamp.setText(login.date_timestamp.toString());
 		
 		Group grpListOfQuestions = new Group(shell, SWT.NONE);
 		grpListOfQuestions.setBackground(SWTResourceManager.getColor(211, 211, 211));
@@ -97,20 +133,20 @@ public class view_edit_result {
 		lblNewLabel_1.setBounds(10, 266, 122, 15);
 		lblNewLabel_1.setText("Questionnaire Name");
 		
-		text_1 = new Text(shell, SWT.BORDER);
-		text_1.setEnabled(false);
-		text_1.setEditable(false);
-		text_1.setBounds(138, 263, 176, 21);
+		txt_questionniare_name = new Text(shell, SWT.BORDER);
+		txt_questionniare_name.setEnabled(false);
+		txt_questionniare_name.setEditable(false);
+		txt_questionniare_name.setBounds(138, 263, 176, 21);
 		
 		Label lblQuestionName = new Label(shell, SWT.NONE);
 		lblQuestionName.setBackground(SWTResourceManager.getColor(211, 211, 211));
 		lblQuestionName.setText("Question Name");
-		lblQuestionName.setBounds(10, 300, 122, 15);
+		lblQuestionName.setBounds(10, 319, 122, 15);
 		
-		text_2 = new Text(shell, SWT.BORDER);
-		text_2.setEnabled(false);
-		text_2.setEditable(false);
-		text_2.setBounds(138, 294, 176, 21);
+		txt_qestn_name = new Text(shell, SWT.BORDER);
+		txt_qestn_name.setEnabled(false);
+		txt_qestn_name.setEditable(false);
+		txt_qestn_name.setBounds(138, 313, 176, 21);
 		
 		Label lblEditAnswer = new Label(shell, SWT.NONE);
 		lblEditAnswer.setBackground(SWTResourceManager.getColor(211, 211, 211));
@@ -124,29 +160,42 @@ public class view_edit_result {
 		btnApplyChanges.setBounds(125, 481, 99, 25);
 		btnApplyChanges.setText("Apply Changes");
 		
-		String results= "SELECT * FROM Results";
-		sql_queries queries = new sql_queries();
-		queries.db_table(Resultstable, results);
+		
 		
 		TableColumn tblclmnResultId = new TableColumn(Resultstable, SWT.NONE);
-		tblclmnResultId.setWidth(100);
+		
 		tblclmnResultId.setText("Result ID");
-		
 		TableColumn tblclmnPatientId = new TableColumn(Resultstable, SWT.NONE);
-		tblclmnPatientId.setWidth(100);
+		tblclmnResultId.setWidth(70);
+		
 		tblclmnPatientId.setText("Patient ID");
-		
 		TableColumn tblclmnQuestionnaireName = new TableColumn(Resultstable, SWT.NONE);
-		tblclmnQuestionnaireName.setWidth(142);
-		tblclmnQuestionnaireName.setText("Questionnaire Name");
+		tblclmnPatientId.setWidth(70);
 		
-		TableColumn tblclmnNewColumn = new TableColumn(Resultstable, SWT.NONE);
-		tblclmnNewColumn.setWidth(130);
-		tblclmnNewColumn.setText("Patient Name");
+		tblclmnQuestionnaireName.setText("Questionnaire Name");
+		tblclmnQuestionnaireName.setWidth(170);
+		
+		TableColumn tblclmnfname = new TableColumn(Resultstable, SWT.NONE);
+		tblclmnfname.setText("Patient Name");
+		tblclmnfname.setWidth(170);
 		
 		TableColumn tblclmnStatus = new TableColumn(Resultstable, SWT.NONE);
-		tblclmnStatus.setWidth(95);
+		tblclmnStatus.setWidth(120);
 		tblclmnStatus.setText("Status");
+		new sql_queries().db_table(Resultstable,query);
+
+	
+	
+		
+		txt_pname = new Text(shell, SWT.BORDER);
+		txt_pname.setEnabled(false);
+		txt_pname.setEditable(false);
+		txt_pname.setBounds(138, 287, 176, 21);
+		
+		Label lblPatientName = new Label(shell, SWT.NONE);
+		lblPatientName.setText("Patient Name");
+		lblPatientName.setBackground(SWTResourceManager.getColor(211, 211, 211));
+		lblPatientName.setBounds(10, 293, 122, 15);
 
 		shell.addListener(SWT.Close, new Listener() {
 			public void handleEvent(Event event) {
