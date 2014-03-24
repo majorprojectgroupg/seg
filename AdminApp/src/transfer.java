@@ -1,15 +1,8 @@
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import javax.swing.JOptionPane;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Group;
@@ -267,12 +260,12 @@ public class transfer {
 		MenuItem mntmHelp = new MenuItem(menu, SWT.NONE);
 		mntmHelp.setText("Help");
 
-		Label label = new Label(shell, SWT.NONE);
-		label.setText("09/03/2014 11:06:57 PM");
-		label.setFont(SWTResourceManager.getFont("Verdana", 9, SWT.NORMAL));
-		label.setBackground(SWTResourceManager.getColor(211, 211, 211));
-		label.setBounds(600, 0, 164, 23);
-
+		Label Timestamp = new Label(shell, SWT.NONE);
+		Timestamp.setFont(SWTResourceManager.getFont("Verdana", 9, SWT.NORMAL));
+		Timestamp.setBackground(SWTResourceManager.getColor(211, 211, 211));
+		Timestamp.setBounds(600, 0, 164, 23);
+		Timestamp.setText(login.date_timestamp.toString());
+		
 		Group grpSelectionForTransfer = new Group(shell, SWT.NONE);
 		grpSelectionForTransfer.setFont(SWTResourceManager.getFont("Segoe UI", 9, SWT.BOLD));
 		grpSelectionForTransfer.setBackground(SWTResourceManager.getColor(211, 211, 211));
