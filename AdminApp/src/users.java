@@ -98,7 +98,7 @@ public class users {
 
 				}else{
 					user_table.removeAll();
-					String filterquery= "SELECT empid AS Employee_id, fname AS First_Name, lname AS Last_Name , role AS Role, username AS Username,password AS Password,userlevel AS UserLevel,active AS Active FROM users where fname like '%"+filtertxt+"%' or lname like '%"+filtertxt+"%' or role like '%"+filtertxt+"%' or userlevel like '%"+filtertxt+"%'";
+					String filterquery= "SELECT * FROM users where fname like '%"+filtertxt+"%' or lname like '%"+filtertxt+"%' or role like '%"+filtertxt+"%' or userlevel like '%"+filtertxt+"%'";
 					System.out.println(filterquery);// debugging
 					queries.db_table(user_table,filterquery);
 
@@ -287,7 +287,6 @@ public class users {
 						queries.db_table(user_table,executestaement);//	if filtered use filter query to refresh table 
 						String updatelog = "INSERT INTO log Values('"+login.username+"','"+login.date_timestamp+"','the user updated the logon credentials of "+" "+fnme+" "+lnme+"')";
 						queries.delete_add_update(updatelog);
-						JOptionPane.showMessageDialog(null, "You have successfully updated the user record","Success", JOptionPane.PLAIN_MESSAGE);
 						confirm.setMessage("You have successfully updated the user record");
 						confirm.setText("Success");
 						confirm.open();
@@ -531,12 +530,11 @@ public class users {
 		TableColumn colm_active = new TableColumn(user_table, SWT.NONE);
 		colm_active.setText("Active");
 
-		Label label = new Label(shell, SWT.NONE);
-		label.setText("09/03/2014 11:06:57 PM");
-		label.setFont(SWTResourceManager.getFont("Verdana", 9, SWT.NORMAL));
-		label.setBackground(SWTResourceManager.getColor(211, 211, 211));
-		label.setBounds(455, 0, 164, 14);
-
+		Label Timestamp = new Label(shell, SWT.NONE);
+		Timestamp.setFont(SWTResourceManager.getFont("Verdana", 9, SWT.NORMAL));
+		Timestamp.setBackground(SWTResourceManager.getColor(211, 211, 211));
+		Timestamp.setBounds(455, 0, 164, 14);
+		Timestamp.setText(login.date_timestamp.toString());
 
 
 		shell.addListener(SWT.Close, new Listener() {
